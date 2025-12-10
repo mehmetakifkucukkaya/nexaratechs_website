@@ -2,11 +2,11 @@ Karar verdiğimiz **Next.js + Firebase (Dahili Admin Paneli)** mimarisine göre 
 
 -----
 
-# Ürün Gereksinim Dokümanı (PRD): NexaraApps Web Platformu
+# Ürün Gereksinim Dokümanı (PRD): NexaraTechs Web Platformu
 
 | Doküman Bilgisi | Detay |
 | :--- | :--- |
-| **Proje Adı** | NexaraApps Official Portfolio |
+| **Proje Adı** | NexaraTechs Official Portfolio |
 | **Versiyon** | 1.1 (Firebase & Internal Admin Architecture) |
 | **Mimari** | Serverless / Single Repo |
 | **Platform** | Web (Mobile Responsive) |
@@ -16,7 +16,7 @@ Karar verdiğimiz **Next.js + Firebase (Dahili Admin Paneli)** mimarisine göre 
 
 ## 1\. Proje Özeti ve Teknik Vizyon
 
-**NexaraApps**, Google Play Store'da yayınlanan uygulamaları tanıtan, modern ve oyuncu bir tasarıma sahip portfolyo sitesidir.
+**NexaraTechs**, Google Play Store'da yayınlanan uygulamaları tanıtan, modern ve oyuncu bir tasarıma sahip portfolyo sitesidir.
 **Teknik Vizyon:** Ayrı bir backend sunucusu (VPS/Django) kullanılmayacaktır. Site, **Next.js** üzerinde çalışacak, veritabanı ve kimlik doğrulama işlemleri **Firebase** (BaaS) üzerinden yönetilecektir. Yönetim paneli (`/admin`), frontend projesinin içine gömülü, şifreli bir rota olacaktır.
 
 -----
