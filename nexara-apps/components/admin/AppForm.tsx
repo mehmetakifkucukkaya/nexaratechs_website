@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import { addDoc, doc, updateDoc, collection } from "firebase/firestore";
 import { db, storage } from "@/lib/firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { Upload, Save, AlertCircle, Loader2, Image } from "lucide-react";
+import Link from "next/link";
 
 // File validation constants
 const ALLOWED_FILE_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
@@ -56,7 +58,7 @@ export default function AppForm({ initialData, isEdit = false }: AppFormProps) {
             if (error) {
                 setFileError(error);
                 setIconFile(null);
-                e.target.value = ''; // Reset the input
+                e.target.value = '';
                 return;
             }
         }
@@ -71,9 +73,7 @@ export default function AppForm({ initialData, isEdit = false }: AppFormProps) {
         try {
             let iconUrl = initialData?.iconUrl || "";
 
-            // Upload Icon if exists
             if (iconFile) {
-                // Double-check validation before upload
                 const validationError = validateFile(iconFile);
                 if (validationError) {
                     setSubmitError(validationError);
@@ -89,7 +89,6 @@ export default function AppForm({ initialData, isEdit = false }: AppFormProps) {
             const payload = {
                 ...data,
                 iconUrl,
-                // Ensure numbers are numbers
                 order: Number(data.order)
             };
 
@@ -109,101 +108,159 @@ export default function AppForm({ initialData, isEdit = false }: AppFormProps) {
         }
     };
 
+    const inputClass = "w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all";
+    const labelClass = "block text-sm font-medium text-gray-300 mb-2";
+    const errorClass = "mt-2 text-sm text-red-400 flex items-center gap-1";
+
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 bg-white p-6 rounded-lg shadow max-w-2xl">
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+            <div className="rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/5 p-6 md:p-8">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
 
-                <div className="sm:col-span-2">
-                    <label className="block text-sm font-medium leading-6 text-gray-900">Icon</label>
-                    <div className="mt-2 flex items-center gap-x-3">
-                        {initialData?.iconUrl && !iconFile && (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={initialData.iconUrl} alt="Current Icon" className="h-12 w-12 rounded-lg object-cover" />
+                    {/* Icon Upload */}
+                    <div className="md:col-span-2">
+                        <label className={labelClass}>App Icon</label>
+                        <div className="flex items-center gap-4">
+                            {initialData?.iconUrl && !iconFile ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img src={initialData.iconUrl} alt="Current Icon" className="h-16 w-16 rounded-xl object-cover border border-white/10" />
+                            ) : iconFile ? (
+                                <div className="h-16 w-16 rounded-xl bg-purple-500/10 flex items-center justify-center border border-purple-500/30">
+                                    <Image className="w-8 h-8 text-purple-400" />
+                                </div>
+                            ) : (
+                                <div className="h-16 w-16 rounded-xl bg-white/5 flex items-center justify-center border border-dashed border-white/20">
+                                    <Upload className="w-6 h-6 text-gray-500" />
+                                </div>
+                            )}
+                            <div className="flex-1">
+                                <input
+                                    type="file"
+                                    accept=".png,.jpg,.jpeg,.webp,.gif"
+                                    onChange={handleFileChange}
+                                    className="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-medium file:bg-purple-500/10 file:text-purple-400 hover:file:bg-purple-500/20 file:cursor-pointer file:transition-colors"
+                                />
+                                <p className="mt-1 text-xs text-gray-500">PNG, JPEG, WebP or GIF. Max 5MB.</p>
+                            </div>
+                        </div>
+                        {fileError && (
+                            <p className={errorClass}><AlertCircle className="w-4 h-4" /> {fileError}</p>
                         )}
+                    </div>
+
+                    {/* Title */}
+                    <div>
+                        <label className={labelClass}>App Title</label>
                         <input
-                            type="file"
-                            accept=".png,.jpg,.jpeg,.webp,.gif"
-                            onChange={handleFileChange}
-                            className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100"
+                            {...register("title", { required: "Title is required" })}
+                            className={`${inputClass} ${errors.title ? 'border-red-500/50 ring-1 ring-red-500/50' : ''}`}
+                            placeholder="My Awesome App"
                         />
+                        {errors.title && <p className={errorClass}><AlertCircle className="w-4 h-4" /> {errors.title.message}</p>}
                     </div>
-                    {fileError && (
-                        <p className="mt-2 text-sm text-red-600">{fileError}</p>
-                    )}
-                </div>
 
-                <div className="sm:col-span-1">
-                    <label className="block text-sm font-medium leading-6 text-gray-900">App Title</label>
-                    <div className="mt-2">
-                        <input {...register("title", { required: "Title is required" })} className={`block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ${errors.title ? 'ring-red-500' : 'ring-gray-300'} placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 px-3`} />
+                    {/* Slug */}
+                    <div>
+                        <label className={labelClass}>Slug (ID)</label>
+                        <input
+                            {...register("slug", { required: "Slug is required" })}
+                            className={`${inputClass} ${errors.slug ? 'border-red-500/50 ring-1 ring-red-500/50' : ''}`}
+                            placeholder="my-awesome-app"
+                        />
+                        {errors.slug && <p className={errorClass}><AlertCircle className="w-4 h-4" /> {errors.slug.message}</p>}
                     </div>
-                    {errors.title && <p className="mt-1 text-sm text-red-600">{errors.title.message || 'Title is required'}</p>}
-                </div>
 
-                <div className="sm:col-span-1">
-                    <label className="block text-sm font-medium leading-6 text-gray-900">Slug (ID)</label>
-                    <div className="mt-2">
-                        <input {...register("slug", { required: "Slug is required" })} className={`block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ${errors.slug ? 'ring-red-500' : 'ring-gray-300'} placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 px-3`} />
+                    {/* Play Store URL */}
+                    <div className="md:col-span-2">
+                        <label className={labelClass}>Play Store URL</label>
+                        <input
+                            {...register("playStoreUrl", { required: "Play Store URL is required" })}
+                            className={`${inputClass} ${errors.playStoreUrl ? 'border-red-500/50 ring-1 ring-red-500/50' : ''}`}
+                            placeholder="https://play.google.com/store/apps/details?id=..."
+                        />
+                        {errors.playStoreUrl && <p className={errorClass}><AlertCircle className="w-4 h-4" /> {errors.playStoreUrl.message}</p>}
                     </div>
-                    {errors.slug && <p className="mt-1 text-sm text-red-600">{errors.slug.message || 'Slug is required'}</p>}
-                </div>
 
-                <div className="sm:col-span-2">
-                    <label className="block text-sm font-medium leading-6 text-gray-900">Play Store URL</label>
-                    <div className="mt-2">
-                        <input {...register("playStoreUrl", { required: "Play Store URL is required" })} className={`block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ${errors.playStoreUrl ? 'ring-red-500' : 'ring-gray-300'} placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 px-3`} />
-                    </div>
-                    {errors.playStoreUrl && <p className="mt-1 text-sm text-red-600">{errors.playStoreUrl.message || 'Play Store URL is required'}</p>}
-                </div>
-
-                <div className="sm:col-span-1">
-                    <label className="block text-sm font-medium leading-6 text-gray-900">Status</label>
-                    <div className="mt-2">
-                        <select {...register("status")} className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 px-3">
-                            <option value="live">Live</option>
-                            <option value="closed_test">Closed Test</option>
-                            <option value="development">Development</option>
+                    {/* Status */}
+                    <div>
+                        <label className={labelClass}>Status</label>
+                        <select {...register("status")} className={inputClass}>
+                            <option value="live" className="bg-[#0a0a1a]">Live</option>
+                            <option value="closed_test" className="bg-[#0a0a1a]">Closed Test</option>
+                            <option value="development" className="bg-[#0a0a1a]">Development</option>
                         </select>
                     </div>
-                </div>
 
-                <div className="sm:col-span-1">
-                    <label className="block text-sm font-medium leading-6 text-gray-900">Order</label>
-                    <div className="mt-2">
-                        <input type="number" {...register("order")} className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 px-3" />
+                    {/* Order */}
+                    <div>
+                        <label className={labelClass}>Display Order</label>
+                        <input
+                            type="number"
+                            {...register("order")}
+                            className={inputClass}
+                            placeholder="1"
+                        />
                     </div>
-                </div>
 
-                <div className="sm:col-span-2">
-                    <label className="block text-sm font-medium leading-6 text-gray-900">Description (EN)</label>
-                    <div className="mt-2">
-                        <textarea {...register("description.en")} rows={3} className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 px-3" />
+                    {/* Description EN */}
+                    <div className="md:col-span-2">
+                        <label className={labelClass}>Description (English)</label>
+                        <textarea
+                            {...register("description.en")}
+                            rows={3}
+                            className={inputClass}
+                            placeholder="Describe your app in English..."
+                        />
                     </div>
-                </div>
 
-                <div className="sm:col-span-2">
-                    <label className="block text-sm font-medium leading-6 text-gray-900">Description (TR)</label>
-                    <div className="mt-2">
-                        <textarea {...register("description.tr")} rows={3} className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 px-3" />
+                    {/* Description TR */}
+                    <div className="md:col-span-2">
+                        <label className={labelClass}>Description (Turkish)</label>
+                        <textarea
+                            {...register("description.tr")}
+                            rows={3}
+                            className={inputClass}
+                            placeholder="Uygulamanızı Türkçe açıklayın..."
+                        />
                     </div>
                 </div>
             </div>
 
+            {/* Submit Error */}
             {submitError && (
-                <div className="rounded-md bg-red-50 p-4">
-                    <p className="text-sm text-red-700">{submitError}</p>
+                <div className="rounded-xl bg-red-500/10 border border-red-500/20 p-4 flex items-center gap-3">
+                    <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
+                    <p className="text-sm text-red-400">{submitError}</p>
                 </div>
             )}
 
-            <div className="flex justify-end pt-4">
+            {/* Actions */}
+            <div className="flex items-center justify-end gap-4">
+                <Link
+                    href="/admin/apps"
+                    className="px-5 py-2.5 rounded-xl text-gray-400 hover:text-white transition-colors"
+                >
+                    Cancel
+                </Link>
                 <button
                     type="submit"
                     disabled={loading || !!fileError}
-                    className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-6 py-2.5 rounded-xl font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-purple-500/25"
                 >
-                    {loading ? "Saving..." : "Save App"}
+                    {loading ? (
+                        <>
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                            Saving...
+                        </>
+                    ) : (
+                        <>
+                            <Save className="w-5 h-5" />
+                            {isEdit ? 'Update App' : 'Create App'}
+                        </>
+                    )}
                 </button>
             </div>
         </form>
     );
 }
+
