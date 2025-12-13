@@ -31,8 +31,25 @@ function validateFile(file: File): string | null {
     return null;
 }
 
+// Generate slug from title
+function generateSlug(title: string): string {
+    return title
+        .toLowerCase()
+        .trim()
+        .replace(/[ğ]/g, 'g')
+        .replace(/[ü]/g, 'u')
+        .replace(/[ş]/g, 's')
+        .replace(/[ı]/g, 'i')
+        .replace(/[ö]/g, 'o')
+        .replace(/[ç]/g, 'c')
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
+}
+
 export default function AppForm({ initialData, isEdit = false }: AppFormProps) {
-    const { register, handleSubmit, formState: { errors } } = useForm<AppData>({
+    const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm<AppData>({
         defaultValues: initialData || {
             title: "",
             slug: "",
@@ -47,7 +64,31 @@ export default function AppForm({ initialData, isEdit = false }: AppFormProps) {
     const [iconFile, setIconFile] = useState<File | null>(null);
     const [fileError, setFileError] = useState<string | null>(null);
     const [submitError, setSubmitError] = useState<string | null>(null);
+    const [autoSlug, setAutoSlug] = useState(!isEdit);
     const router = useRouter();
+
+    // Watch title and auto-generate slug
+    const title = watch('title');
+    const currentSlug = watch('slug');
+
+    // Auto-generate slug when title changes (only if autoSlug is enabled)
+    useState(() => {
+        if (autoSlug && title) {
+            setValue('slug', generateSlug(title));
+        }
+    });
+
+    const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newTitle = e.target.value;
+        if (autoSlug) {
+            setValue('slug', generateSlug(newTitle));
+        }
+    };
+
+    const handleSlugChange = () => {
+        // User manually edited slug, disable auto-generation
+        setAutoSlug(false);
+    };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0] || null;
@@ -121,20 +162,23 @@ export default function AppForm({ initialData, isEdit = false }: AppFormProps) {
                     <div className="md:col-span-2">
                         <label className={labelClass}>App Icon</label>
                         <div className="flex items-center gap-4">
-                            {initialData?.iconUrl && !iconFile ? (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img src={initialData.iconUrl} alt="Current Icon" className="h-16 w-16 rounded-xl object-cover border border-white/10" />
-                            ) : iconFile ? (
-                                <div className="h-16 w-16 rounded-xl bg-purple-500/10 flex items-center justify-center border border-purple-500/30">
-                                    <Image className="w-8 h-8 text-purple-400" />
-                                </div>
-                            ) : (
-                                <div className="h-16 w-16 rounded-xl bg-white/5 flex items-center justify-center border border-dashed border-white/20">
-                                    <Upload className="w-6 h-6 text-gray-500" />
-                                </div>
-                            )}
+                            <label htmlFor="icon-upload" className="cursor-pointer group">
+                                {initialData?.iconUrl && !iconFile ? (
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <img src={initialData.iconUrl} alt="Current Icon" className="h-16 w-16 rounded-xl object-cover border border-white/10 group-hover:border-purple-500/50 transition-colors" />
+                                ) : iconFile ? (
+                                    <div className="h-16 w-16 rounded-xl bg-purple-500/10 flex items-center justify-center border border-purple-500/30">
+                                        <Image className="w-8 h-8 text-purple-400" />
+                                    </div>
+                                ) : (
+                                    <div className="h-16 w-16 rounded-xl bg-white/5 flex items-center justify-center border border-dashed border-white/20 group-hover:border-purple-500/50 group-hover:bg-purple-500/5 transition-all">
+                                        <Upload className="w-6 h-6 text-gray-500 group-hover:text-purple-400 transition-colors" />
+                                    </div>
+                                )}
+                            </label>
                             <div className="flex-1">
                                 <input
+                                    id="icon-upload"
                                     type="file"
                                     accept=".png,.jpg,.jpeg,.webp,.gif"
                                     onChange={handleFileChange}
@@ -152,7 +196,7 @@ export default function AppForm({ initialData, isEdit = false }: AppFormProps) {
                     <div>
                         <label className={labelClass}>App Title</label>
                         <input
-                            {...register("title", { required: "Title is required" })}
+                            {...register("title", { required: "Title is required", onChange: handleTitleChange })}
                             className={`${inputClass} ${errors.title ? 'border-red-500/50 ring-1 ring-red-500/50' : ''}`}
                             placeholder="My Awesome App"
                         />
@@ -161,9 +205,12 @@ export default function AppForm({ initialData, isEdit = false }: AppFormProps) {
 
                     {/* Slug */}
                     <div>
-                        <label className={labelClass}>Slug (ID)</label>
+                        <label className={labelClass}>
+                            Slug (ID)
+                            {autoSlug && <span className="ml-2 text-xs text-purple-400">(auto)</span>}
+                        </label>
                         <input
-                            {...register("slug", { required: "Slug is required" })}
+                            {...register("slug", { required: "Slug is required", onChange: handleSlugChange })}
                             className={`${inputClass} ${errors.slug ? 'border-red-500/50 ring-1 ring-red-500/50' : ''}`}
                             placeholder="my-awesome-app"
                         />
@@ -182,7 +229,7 @@ export default function AppForm({ initialData, isEdit = false }: AppFormProps) {
                     </div>
 
                     {/* Status */}
-                    <div>
+                    <div className="md:col-span-2">
                         <label className={labelClass}>Status</label>
                         <select {...register("status")} className={inputClass}>
                             <option value="live" className="bg-[#0a0a1a]">Live</option>
@@ -191,36 +238,14 @@ export default function AppForm({ initialData, isEdit = false }: AppFormProps) {
                         </select>
                     </div>
 
-                    {/* Order */}
-                    <div>
-                        <label className={labelClass}>Display Order</label>
-                        <input
-                            type="number"
-                            {...register("order")}
-                            className={inputClass}
-                            placeholder="1"
-                        />
-                    </div>
-
-                    {/* Description EN */}
+                    {/* Description */}
                     <div className="md:col-span-2">
-                        <label className={labelClass}>Description (English)</label>
+                        <label className={labelClass}>Description</label>
                         <textarea
                             {...register("description.en")}
-                            rows={3}
+                            rows={4}
                             className={inputClass}
-                            placeholder="Describe your app in English..."
-                        />
-                    </div>
-
-                    {/* Description TR */}
-                    <div className="md:col-span-2">
-                        <label className={labelClass}>Description (Turkish)</label>
-                        <textarea
-                            {...register("description.tr")}
-                            rows={3}
-                            className={inputClass}
-                            placeholder="Uygulamanızı Türkçe açıklayın..."
+                            placeholder="Describe your app..."
                         />
                     </div>
                 </div>

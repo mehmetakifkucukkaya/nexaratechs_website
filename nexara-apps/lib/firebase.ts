@@ -13,62 +13,29 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
-// Lazy initialization - only initialize when accessed
-let _app: FirebaseApp | null = null;
-let _auth: Auth | null = null;
-let _db: Firestore | null = null;
-let _storage: FirebaseStorage | null = null;
+// Check if we have minimum required config
+const hasConfig = firebaseConfig.apiKey && firebaseConfig.projectId;
 
-function getFirebaseApp(): FirebaseApp {
-  if (!_app) {
-    // Validate environment variables at runtime
-    const requiredEnvVars = [
-      { key: 'NEXT_PUBLIC_FIREBASE_API_KEY', name: 'API Key' },
-      { key: 'NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN', name: 'Auth Domain' },
-      { key: 'NEXT_PUBLIC_FIREBASE_PROJECT_ID', name: 'Project ID' },
-    ] as const;
+// Initialize Firebase
+let app: FirebaseApp | undefined;
+let auth: Auth | undefined;
+let db: Firestore | undefined;
+let storage: FirebaseStorage | undefined;
 
-    const missingVars = requiredEnvVars.filter(
-      ({ key }) => !process.env[key]
-    );
-
-    if (missingVars.length > 0 && typeof window !== 'undefined') {
-      console.error(
-        `🔥 Firebase Configuration Error:\nMissing environment variables:\n${missingVars
-          .map(({ name, key }) => `  - ${name} (${key})`)
-          .join('\n')}\n\nPlease check your .env.local file.`
-      );
-    }
-
-    _app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+if (hasConfig) {
+  try {
+    app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+    auth = getAuth(app);
+    db = getFirestore(app);
+    storage = getStorage(app);
+  } catch (error) {
+    console.error("Firebase initialization error:", error);
   }
-  return _app;
+} else if (typeof window !== 'undefined') {
+  console.warn(
+    "⚠️ Firebase not configured. Please add NEXT_PUBLIC_FIREBASE_* variables to .env.local"
+  );
 }
 
-// Export getters that lazily initialize
-export const auth: Auth = new Proxy({} as Auth, {
-  get(_, prop) {
-    if (!_auth) {
-      _auth = getAuth(getFirebaseApp());
-    }
-    return (_auth as unknown as Record<string | symbol, unknown>)[prop];
-  }
-});
+export { app, auth, db, storage };
 
-export const db: Firestore = new Proxy({} as Firestore, {
-  get(_, prop) {
-    if (!_db) {
-      _db = getFirestore(getFirebaseApp());
-    }
-    return (_db as unknown as Record<string | symbol, unknown>)[prop];
-  }
-});
-
-export const storage: FirebaseStorage = new Proxy({} as FirebaseStorage, {
-  get(_, prop) {
-    if (!_storage) {
-      _storage = getStorage(getFirebaseApp());
-    }
-    return (_storage as unknown as Record<string | symbol, unknown>)[prop];
-  }
-});

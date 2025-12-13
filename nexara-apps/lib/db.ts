@@ -36,7 +36,11 @@ export interface TesterData {
     fullName: string;
     email: string;
     device: string;
+    status?: 'pending' | 'approved' | 'rejected';
+    assignedAppId?: string;
+    adminNotes?: string;
     appliedAt?: Timestamp;
+    updatedAt?: Timestamp;
 }
 
 // Collections
