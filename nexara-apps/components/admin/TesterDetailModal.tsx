@@ -134,8 +134,8 @@ export function TesterDetailModal({ tester, apps, isOpen, onClose, onUpdate }: T
                                     key={s}
                                     onClick={() => setStatus(s)}
                                     className={`flex-1 py-2 px-3 rounded-xl text-sm font-medium border transition-all ${status === s
-                                            ? getStatusStyle(s) + ' border-current'
-                                            : 'bg-white/5 text-gray-400 border-white/10 hover:bg-white/10'
+                                        ? getStatusStyle(s) + ' border-current'
+                                        : 'bg-white/5 text-gray-400 border-white/10 hover:bg-white/10'
                                         }`}
                                 >
                                     {s.charAt(0).toUpperCase() + s.slice(1)}

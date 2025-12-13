@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { logoutAdmin } from "@/lib/auth";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     LayoutDashboard,
     AppWindow,
@@ -11,7 +11,8 @@ import {
     LogOut,
     Menu,
     X,
-    Sparkles
+    Sparkles,
+    Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ToastProvider } from "@/components/admin/Toast";
@@ -29,20 +30,14 @@ export default function AdminLayout({
 }) {
     const router = useRouter();
     const pathname = usePathname();
-    const [loggingOut, setLoggingOut] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     const handleLogout = async () => {
-        setLoggingOut(true);
         try {
             await logoutAdmin();
-            await fetch('/api/auth/logout', { method: 'POST' });
             router.push("/login");
-            router.refresh();
         } catch (error) {
-            console.error('Logout error:', error);
-        } finally {
-            setLoggingOut(false);
+            console.error("Logout error:", error);
         }
     };
 
@@ -50,6 +45,37 @@ export default function AdminLayout({
         if (href === "/admin") return pathname === "/admin";
         return pathname.startsWith(href);
     };
+
+    const [loading, setLoading] = useState(true);
+
+    // Auth Check
+    useEffect(() => {
+        // Use a dynamic import or accessing global window to avoid SSR issues if necessary,
+        // but since this is "use client", importing auth is fine.
+        const { auth } = require("@/lib/firebase");
+        const { onAuthStateChanged } = require("firebase/auth");
+
+        const unsubscribe = onAuthStateChanged(auth, (user: any) => {
+            if (!user) {
+                router.push("/login");
+            } else {
+                setLoading(false);
+            }
+        });
+
+        return () => unsubscribe();
+    }, [router]);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-[#0a0a1a] flex items-center justify-center">
+                <div className="flex flex-col items-center gap-4">
+                    <Loader2 className="w-8 h-8 text-purple-500 animate-spin" />
+                    <p className="text-gray-400 text-sm">Verifying access...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <ToastProvider>
@@ -65,9 +91,11 @@ export default function AdminLayout({
                     {/* Logo */}
                     <div className="p-6 border-b border-white/5">
                         <Link href="/admin" className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-purple-500/25">
-                                <Sparkles className="w-5 h-5 text-white" />
-                            </div>
+                            <img
+                                src="/logo.png"
+                                alt="Nexara"
+                                className="h-10 w-10 rounded-xl object-cover"
+                            />
                             <div>
                                 <span className="font-bold text-lg text-white">Nexara</span>
                                 <span className="text-xs text-purple-400 block -mt-1">Admin Panel</span>
@@ -93,26 +121,22 @@ export default function AdminLayout({
                                 >
                                     <Icon className={cn(
                                         "w-5 h-5 transition-colors",
-                                        active ? "text-purple-400" : "group-hover:text-purple-400"
+                                        active ? "text-purple-400" : "text-gray-500 group-hover:text-purple-400"
                                     )} />
                                     <span className="font-medium">{item.name}</span>
-                                    {active && (
-                                        <div className="ml-auto w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
-                                    )}
                                 </Link>
                             );
                         })}
                     </nav>
 
-                    {/* Logout */}
+                    {/* Logout Button */}
                     <div className="p-4 border-t border-white/5">
                         <button
                             onClick={handleLogout}
-                            disabled={loggingOut}
-                            className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all duration-200 disabled:opacity-50"
+                            className="flex items-center gap-3 px-4 py-3 w-full text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all duration-200"
                         >
                             <LogOut className="w-5 h-5" />
-                            <span className="font-medium">{loggingOut ? 'Logging out...' : 'Logout'}</span>
+                            <span className="font-medium">Logout</span>
                         </button>
                     </div>
                 </aside>
@@ -132,9 +156,11 @@ export default function AdminLayout({
                 )}>
                     <div className="p-6 border-b border-white/5 flex items-center justify-between">
                         <Link href="/admin" className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center">
-                                <Sparkles className="w-5 h-5 text-white" />
-                            </div>
+                            <img
+                                src="/logo.png"
+                                alt="Nexara"
+                                className="h-10 w-10 rounded-xl object-cover"
+                            />
                             <span className="font-bold text-lg text-white">Nexara</span>
                         </Link>
                         <button onClick={() => setMobileMenuOpen(false)} className="text-gray-400 hover:text-white">
@@ -157,31 +183,30 @@ export default function AdminLayout({
                                             : "text-gray-400 hover:text-white hover:bg-white/5"
                                     )}
                                 >
-                                    <Icon className="w-5 h-5" />
+                                    <Icon className={cn("w-5 h-5", active ? "text-purple-400" : "text-gray-500")} />
                                     <span className="font-medium">{item.name}</span>
                                 </Link>
                             );
                         })}
                     </nav>
-                    <div className="absolute bottom-4 left-4 right-4">
+                    <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/5">
                         <button
                             onClick={handleLogout}
-                            disabled={loggingOut}
-                            className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-50"
+                            className="flex items-center gap-3 px-4 py-3 w-full text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all"
                         >
                             <LogOut className="w-5 h-5" />
-                            <span>{loggingOut ? 'Logging out...' : 'Logout'}</span>
+                            <span className="font-medium">Logout</span>
                         </button>
                     </div>
                 </aside>
 
                 {/* Main Content */}
-                <main className="flex-1 relative z-10">
-                    {/* Top Header */}
-                    <header className="h-16 border-b border-white/5 bg-white/[0.02] backdrop-blur-xl flex items-center px-6 justify-between sticky top-0 z-30">
+                <main className="flex-1 flex flex-col relative z-10">
+                    {/* Top Bar */}
+                    <header className="h-16 border-b border-white/5 flex items-center justify-between px-6 bg-white/[0.02] backdrop-blur-xl">
                         <button
+                            className="md:hidden text-gray-400 hover:text-white"
                             onClick={() => setMobileMenuOpen(true)}
-                            className="md:hidden text-gray-400 hover:text-white transition-colors"
                         >
                             <Menu className="w-6 h-6" />
                         </button>
@@ -202,4 +227,3 @@ export default function AdminLayout({
         </ToastProvider>
     );
 }
-

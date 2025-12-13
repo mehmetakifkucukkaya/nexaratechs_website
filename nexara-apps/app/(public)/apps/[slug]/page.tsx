@@ -1,10 +1,12 @@
 "use client";
 
 import { notFound, useParams } from "next/navigation";
-import { getAppBySlug } from "@/lib/data";
+import { getApp } from "@/lib/firebase"; // Use async fetch
+import { getIcon } from "@/lib/icon-map";
+import { AppData } from "@/lib/data";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, ShieldCheck, User, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ShieldCheck, User, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { useState, useEffect, useCallback } from "react";
@@ -22,15 +24,10 @@ const screenshots = [
 export default function AppPage() {
     const params = useParams();
     const slug = params?.slug as string;
-    const app = getAppBySlug(slug);
+    const [app, setApp] = useState<AppData | null>(null);
+    const [loading, setLoading] = useState(true);
 
-    if (!app) {
-        notFound();
-    }
-
-    const Icon = app.icon;
-
-    // Slider state and controls
+    // Slider state and controls - Moved up to avoid conditional hook call error
     const [currentSlide, setCurrentSlide] = useState(0);
     const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
@@ -42,13 +39,6 @@ export default function AppPage() {
         setCurrentSlide((prev) => (prev - 1 + screenshots.length) % screenshots.length);
     }, []);
 
-    const goToSlide = (index: number) => {
-        setCurrentSlide(index);
-        setIsAutoPlaying(false);
-        // Resume auto-play after 10 seconds
-        setTimeout(() => setIsAutoPlaying(true), 10000);
-    };
-
     // Auto-rotate every 4 seconds
     useEffect(() => {
         if (!isAutoPlaying) return;
@@ -56,10 +46,49 @@ export default function AppPage() {
         return () => clearInterval(interval);
     }, [isAutoPlaying, nextSlide]);
 
-    // Use app-specific color for gradients/accents
-    const gradientColor = app.primaryColor === "blue" ? "from-blue-600 to-cyan-500" : "from-purple-600 to-pink-500";
-    const accentColor = app.primaryColor === "blue" ? "text-blue-400" : "text-purple-400";
-    const bgGlow = app.primaryColor === "blue" ? "bg-blue-600" : "bg-purple-600";
+    useEffect(() => {
+        if (!slug) return;
+        async function loadApp() {
+            try {
+                const fetchedApp = await getApp(slug);
+                if (fetchedApp) {
+                    setApp(fetchedApp);
+                } else {
+                    setApp(null);
+                }
+            } catch (error) {
+                console.error("Failed to load app", error);
+            } finally {
+                setLoading(false);
+            }
+        }
+        loadApp();
+    }, [slug]);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-background flex items-center justify-center">
+                <Loader2 className="w-10 h-10 animate-spin text-primary" />
+            </div>
+        );
+    }
+
+    if (!app) {
+        notFound();
+    }
+
+    const Icon = getIcon(app.icon as string);
+    const goToSlide = (index: number) => {
+        setCurrentSlide(index);
+        setIsAutoPlaying(false);
+        // Resume auto-play after 10 seconds
+        setTimeout(() => setIsAutoPlaying(true), 10000);
+    };
+
+    // Use app-specific color for gradients/accents - Defaulting to Purple/Indigo since primaryColor is removed
+    const gradientColor = "from-purple-600 to-pink-500";
+    const accentColor = "text-purple-400";
+    const bgGlow = "bg-purple-600";
 
     return (
         <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
@@ -75,7 +104,7 @@ export default function AppPage() {
                 </div>
 
                 <div className="container mx-auto px-4 sm:px-6 lg:px-12 xl:px-16">
-                    <Link href="/#apps" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-12 transition-colors">
+                    <Link href="/apps" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-12 transition-colors">
                         <ArrowLeft className="w-4 h-4" /> Back to Apps
                     </Link>
 
@@ -88,11 +117,12 @@ export default function AppPage() {
                             className="flex-1 text-center lg:text-left space-y-8"
                         >
                             <div className="flex flex-col items-center lg:items-start gap-6">
-                                <div className={cn(
-                                    "h-28 w-28 rounded-[2rem] bg-gradient-to-br flex items-center justify-center shadow-2xl ring-1 ring-white/10",
-                                    app.logoGradient
-                                )}>
-                                    <Icon className="text-white w-14 h-14" />
+                                <div className="h-28 w-28 rounded-[2rem] bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center shadow-2xl ring-1 ring-white/10">
+                                    {app.logoUrl ? (
+                                        <img src={app.logoUrl} alt={app.name} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <div className="text-4xl font-bold text-white/50">{app.name.substring(0, 1)}</div>
+                                    )}
                                 </div>
 
                                 <div className="space-y-3 sm:space-y-4">
@@ -252,8 +282,8 @@ export default function AppPage() {
                                 Key Features
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {app.features.map((feature, idx) => {
-                                    const FeatureIcon = feature.icon;
+                                {(app.features || []).map((feature, idx) => {
+                                    const FeatureIcon = getIcon(feature.icon as string);
                                     return (
                                         <div key={idx} className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-card border border-white/5 hover:border-white/10 transition-colors group shadow-lg">
                                             <div className={`h-12 w-12 rounded-xl bg-gradient-to-br ${gradientColor} bg-opacity-10 flex items-center justify-center mb-4 text-white group-hover:scale-110 transition-transform shadow-inner`}>
@@ -290,7 +320,7 @@ export default function AppPage() {
                                 </li>
                                 <li className="flex justify-between items-center pb-4 border-b border-border/40">
                                     <span className="text-muted-foreground">Updated</span>
-                                    <span className="font-medium">{app.lastUpdated}</span>
+                                    <span className="font-medium">{app.releaseDate}</span>
                                 </li>
                                 {app.privacyUrl && (
                                     <li className="pt-2">

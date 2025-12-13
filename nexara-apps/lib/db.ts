@@ -18,16 +18,25 @@ import {
 // Types
 export interface AppData {
     id?: string;
-    title: string;
     slug: string;
-    iconUrl: string;
-    description: {
-        tr: string;
-        en: string;
-    };
-    playStoreUrl: string;
-    status: 'live' | 'closed_test' | 'development';
-    order: number;
+    name: string;
+    developer: string;
+    shortDescription: string;
+    fullDescription: string;
+    logoUrl: string; // Image URL
+    screenshots: string[]; // URLs
+    features: {
+        title: string;
+        description: string;
+        icon: string; // Lucide icon name for features is fine
+    }[];
+    status: "Beta" | "Live" | "Coming Soon";
+    version: string;
+    releaseDate: string; // Yayınlanma/Test Tarihi
+    category: string;
+    downloadUrl?: string;
+    privacyUrl?: string;
+    order?: number;
     createdAt?: Timestamp;
 }
 
@@ -58,6 +67,7 @@ export const getApps = async () => {
 
 // Get Single App by ID
 export const getAppById = async (id: string) => {
+    if (!id) return null;
     const docRef = doc(db, APPS_COLLECTION, id);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {

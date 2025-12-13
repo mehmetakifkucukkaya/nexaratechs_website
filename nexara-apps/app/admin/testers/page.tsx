@@ -11,6 +11,9 @@ import {
 import { useToast } from "@/components/admin/Toast";
 import { ConfirmModal } from "@/components/admin/ConfirmModal";
 import { TesterDetailModal } from "@/components/admin/TesterDetailModal";
+import { TesterAddModal } from "@/components/admin/TesterAddModal";
+import { TesterImportModal } from "@/components/admin/TesterImportModal";
+import { Plus, Upload } from "lucide-react";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -24,6 +27,8 @@ export default function TestersPage() {
     const [deleteTarget, setDeleteTarget] = useState<TesterData | null>(null);
     const [deleting, setDeleting] = useState(false);
     const [selectedTester, setSelectedTester] = useState<TesterData | null>(null);
+    const [showAddModal, setShowAddModal] = useState(false);
+    const [showImportModal, setShowImportModal] = useState(false);
     const { showToast } = useToast();
 
     const fetchData = async () => {
@@ -167,14 +172,30 @@ export default function TestersPage() {
                     <h1 className="text-3xl font-bold text-white tracking-tight">Tester Applications</h1>
                     <p className="text-gray-400 mt-1">View and manage beta tester applications</p>
                 </div>
-                <button
-                    onClick={exportToCSV}
-                    disabled={testers.length === 0}
-                    className="inline-flex items-center gap-2 bg-white/5 border border-white/10 text-white px-5 py-2.5 rounded-xl font-medium hover:bg-white/10 transition-colors disabled:opacity-50"
-                >
-                    <Download className="w-5 h-5" />
-                    Export CSV
-                </button>
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={exportToCSV}
+                        disabled={testers.length === 0}
+                        className="inline-flex items-center gap-2 bg-white/5 border border-white/10 text-white px-5 py-2.5 rounded-xl font-medium hover:bg-white/10 transition-colors disabled:opacity-50"
+                    >
+                        <Download className="w-5 h-5" />
+                        Export
+                    </button>
+                    <button
+                        onClick={() => setShowImportModal(true)}
+                        className="inline-flex items-center gap-2 bg-white/5 border border-white/10 text-white px-5 py-2.5 rounded-xl font-medium hover:bg-white/10 transition-colors"
+                    >
+                        <Upload className="w-5 h-5" />
+                        Import
+                    </button>
+                    <button
+                        onClick={() => setShowAddModal(true)}
+                        className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-5 py-2.5 rounded-xl font-medium hover:opacity-90 transition-opacity shadow-lg shadow-purple-500/25"
+                    >
+                        <Plus className="w-5 h-5" />
+                        Add Tester
+                    </button>
+                </div>
             </div>
 
             {/* Stats */}
@@ -401,6 +422,20 @@ export default function TestersPage() {
                 isOpen={!!selectedTester}
                 onClose={() => setSelectedTester(null)}
                 onUpdate={fetchData}
+            />
+
+            {/* Add Modal */}
+            <TesterAddModal
+                isOpen={showAddModal}
+                onClose={() => setShowAddModal(false)}
+                onSuccess={fetchData}
+            />
+
+            {/* Import Modal */}
+            <TesterImportModal
+                isOpen={showImportModal}
+                onClose={() => setShowImportModal(false)}
+                onSuccess={fetchData}
             />
         </div>
     );

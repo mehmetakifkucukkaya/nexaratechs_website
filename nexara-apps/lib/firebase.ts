@@ -1,5 +1,5 @@
 // lib/firebase.ts
-import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
+import { initializeApp, getApps as getFirebaseApps, getApp as getFirebaseApp, FirebaseApp } from "firebase/app";
 import { getAuth, Auth } from "firebase/auth";
 import { getFirestore, Firestore } from "firebase/firestore";
 import { getStorage, FirebaseStorage } from "firebase/storage";
@@ -17,25 +17,57 @@ const firebaseConfig = {
 const hasConfig = firebaseConfig.apiKey && firebaseConfig.projectId;
 
 // Initialize Firebase
-let app: FirebaseApp | undefined;
-let auth: Auth | undefined;
-let db: Firestore | undefined;
-let storage: FirebaseStorage | undefined;
+let app: FirebaseApp;
+let auth: Auth;
+let db: Firestore;
+let storage: FirebaseStorage;
 
 if (hasConfig) {
-  try {
-    app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-    auth = getAuth(app);
-    db = getFirestore(app);
-    storage = getStorage(app);
-  } catch (error) {
-    console.error("Firebase initialization error:", error);
-  }
+  app = !getFirebaseApps().length ? initializeApp(firebaseConfig) : getFirebaseApp();
+  auth = getAuth(app);
+  db = getFirestore(app);
+  storage = getStorage(app);
 } else if (typeof window !== 'undefined') {
   console.warn(
     "⚠️ Firebase not configured. Please add NEXT_PUBLIC_FIREBASE_* variables to .env.local"
   );
 }
 
+// @ts-ignore - These will be undefined if not configured, but we handle that at runtime
 export { app, auth, db, storage };
+
+// Data Fetching Utils
+import { collection, getDocs, doc, getDoc, query, where } from "firebase/firestore";
+import { AppData } from "./data";
+
+export async function getApps(): Promise<AppData[]> {
+  if (!db) return [];
+
+  try {
+    const appsRef = collection(db, "apps");
+    const snapshot = await getDocs(appsRef);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as AppData));
+  } catch (error) {
+    console.error("Error fetching apps:", error);
+    return [];
+  }
+}
+
+export async function getApp(slug: string): Promise<AppData | undefined> {
+  if (!db) return undefined;
+
+  try {
+    const appsRef = collection(db, "apps");
+    const q = query(appsRef, where("slug", "==", slug));
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) return undefined;
+
+    return { id: snapshot.docs[0].id, ...snapshot.docs[0].data() } as AppData;
+  } catch (error) {
+    console.error("Error fetching app:", error);
+    return undefined;
+  }
+}
+
 

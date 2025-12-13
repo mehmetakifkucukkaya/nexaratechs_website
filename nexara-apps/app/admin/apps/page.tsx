@@ -5,9 +5,11 @@ import Link from "next/link";
 import { getApps, AppData } from "@/lib/db";
 import { deleteDoc, doc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { Plus, Pencil, Trash2, AppWindow, Loader2, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, Pencil, Trash2, AppWindow, Loader2, Search, ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { ConfirmModal } from "@/components/admin/ConfirmModal";
+import { AppDetailModal } from "@/components/admin/AppDetailModal";
 import { useToast } from "@/components/admin/Toast";
+import { useRouter } from "next/navigation";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -16,9 +18,11 @@ export default function AppsPage() {
     const [loading, setLoading] = useState(true);
     const [deleting, setDeleting] = useState(false);
     const [deleteTarget, setDeleteTarget] = useState<AppData | null>(null);
+    const [selectedApp, setSelectedApp] = useState<AppData | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const { showToast } = useToast();
+    const router = useRouter();
 
     const fetchApps = async () => {
         setLoading(true);
@@ -41,7 +45,7 @@ export default function AppsPage() {
         if (!searchQuery.trim()) return apps;
         const query = searchQuery.toLowerCase();
         return apps.filter(app =>
-            app.title.toLowerCase().includes(query) ||
+            app.name.toLowerCase().includes(query) ||
             app.slug?.toLowerCase().includes(query) ||
             app.status?.toLowerCase().includes(query)
         );
@@ -68,7 +72,7 @@ export default function AppsPage() {
         setDeleting(true);
         try {
             await deleteDoc(doc(db, "apps", deleteTarget.id));
-            showToast(`"${deleteTarget.title}" deleted successfully`, "success");
+            showToast(`"${deleteTarget.name}" deleted successfully`, "success");
             fetchApps();
         } catch (error) {
             console.error(error);
@@ -80,9 +84,9 @@ export default function AppsPage() {
 
     const getStatusStyle = (status: string) => {
         switch (status) {
-            case 'live':
+            case 'Live':
                 return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
-            case 'development':
+            case 'Beta':
                 return 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20';
             default:
                 return 'bg-gray-500/10 text-gray-400 border-gray-500/20';
@@ -111,7 +115,7 @@ export default function AppsPage() {
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                 <input
                     type="text"
-                    placeholder="Search apps by title, slug, or status..."
+                    placeholder="Search apps by name, slug, or status..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-12 pr-4 py-3 bg-white/[0.03] border border-white/10 rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all"
@@ -131,7 +135,7 @@ export default function AppsPage() {
                                 <thead>
                                     <tr className="border-b border-white/5">
                                         <th className="h-14 px-6 text-left font-medium text-gray-400">Icon</th>
-                                        <th className="h-14 px-6 text-left font-medium text-gray-400">Title</th>
+                                        <th className="h-14 px-6 text-left font-medium text-gray-400">Name</th>
                                         <th className="h-14 px-6 text-left font-medium text-gray-400">Slug</th>
                                         <th className="h-14 px-6 text-left font-medium text-gray-400">Status</th>
                                         <th className="h-14 px-6 text-right font-medium text-gray-400">Actions</th>
@@ -139,22 +143,21 @@ export default function AppsPage() {
                                 </thead>
                                 <tbody>
                                     {paginatedApps.map((app) => (
-                                        <tr key={app.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                                        <tr
+                                            key={app.id}
+                                            onClick={() => setSelectedApp(app)}
+                                            className="border-b border-white/5 hover:bg-white/[0.02] transition-colors cursor-pointer"
+                                        >
                                             <td className="p-6">
-                                                {app.iconUrl ? (
-                                                    // eslint-disable-next-line @next/next/no-img-element
-                                                    <img
-                                                        src={app.iconUrl}
-                                                        alt={app.title}
-                                                        className="h-12 w-12 rounded-xl object-cover bg-white/5 border border-white/10"
-                                                    />
-                                                ) : (
-                                                    <div className="h-12 w-12 rounded-xl bg-purple-500/10 flex items-center justify-center">
-                                                        <AppWindow className="w-6 h-6 text-purple-400" />
-                                                    </div>
-                                                )}
+                                                <div className="h-12 w-12 rounded-xl bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center">
+                                                    {app.logoUrl ? (
+                                                        <img src={app.logoUrl} alt={app.name} className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <span className="text-gray-500 font-bold">{app.name.substring(0, 2)}</span>
+                                                    )}
+                                                </div>
                                             </td>
-                                            <td className="p-6 font-medium text-white">{app.title}</td>
+                                            <td className="p-6 font-medium text-white">{app.name}</td>
                                             <td className="p-6 text-gray-400 font-mono text-xs">{app.slug}</td>
                                             <td className="p-6">
                                                 <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium border ${getStatusStyle(app.status)}`}>
@@ -170,7 +173,10 @@ export default function AppsPage() {
                                                         <Pencil className="w-4 h-4" />
                                                     </Link>
                                                     <button
-                                                        onClick={() => handleDeleteClick(app)}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleDeleteClick(app);
+                                                        }}
                                                         className="p-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors"
                                                     >
                                                         <Trash2 className="w-4 h-4" />
@@ -238,11 +244,26 @@ export default function AppsPage() {
             <ConfirmModal
                 isOpen={!!deleteTarget}
                 title="Delete Application"
-                message={`Are you sure you want to delete "${deleteTarget?.title}"? This action cannot be undone.`}
+                message={`Are you sure you want to delete "${deleteTarget?.name}"? This action cannot be undone.`}
                 confirmText="Delete"
                 onConfirm={handleDeleteConfirm}
                 onCancel={() => setDeleteTarget(null)}
                 isLoading={deleting}
+            />
+
+            {/* App Detail Modal */}
+            <AppDetailModal
+                app={selectedApp}
+                isOpen={!!selectedApp}
+                onClose={() => setSelectedApp(null)}
+                onEdit={(app) => {
+                    setSelectedApp(null);
+                    router.push(`/admin/apps/edit/${app.id}`);
+                }}
+                onDelete={(app) => {
+                    setSelectedApp(null);
+                    setDeleteTarget(app);
+                }}
             />
         </div>
     );

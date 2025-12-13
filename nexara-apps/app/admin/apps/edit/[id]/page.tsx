@@ -2,20 +2,21 @@
 
 import AppForm from "@/components/admin/AppForm";
 import { getAppById, AppData } from "@/lib/db";
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import { Pencil, Loader2, AlertCircle } from "lucide-react";
 import Link from "next/link";
 
-export default function EditAppPage({ params }: { params: { id: string } }) {
+export default function EditAppPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = use(params);
     const [app, setApp] = useState<AppData | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        getAppById(params.id).then(data => {
+        getAppById(id).then(data => {
             setApp(data);
             setLoading(false);
         });
-    }, [params.id]);
+    }, [id]);
 
     if (loading) {
         return (
@@ -51,7 +52,7 @@ export default function EditAppPage({ params }: { params: { id: string } }) {
                 </div>
                 <div>
                     <h1 className="text-3xl font-bold text-white tracking-tight">Edit App</h1>
-                    <p className="text-gray-400">Editing: {app.title}</p>
+                    <p className="text-gray-400">Editing: {app.name}</p>
                 </div>
             </div>
             <AppForm initialData={app} isEdit={true} />

@@ -2,7 +2,7 @@
 
 import { useForm } from "react-hook-form";
 import { AppData } from "@/lib/db";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { addDoc, doc, updateDoc, collection } from "firebase/firestore";
 import { db, storage } from "@/lib/firebase";
@@ -49,62 +49,105 @@ function generateSlug(title: string): string {
 }
 
 export default function AppForm({ initialData, isEdit = false }: AppFormProps) {
-    const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm<AppData>({
+    const { register, handleSubmit, formState: { errors }, watch, setValue, control } = useForm<AppData>({
         defaultValues: initialData || {
-            title: "",
+            name: "",
             slug: "",
-            playStoreUrl: "",
-            status: "live",
-            order: 1,
-            description: { tr: "", en: "" }
+            developer: "NexaraTechs Team",
+            shortDescription: "",
+            fullDescription: "",
+            logoUrl: "",
+            screenshots: [],
+            features: [],
+            status: "Live",
+            version: "1.0.0",
+            releaseDate: new Date().toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' }),
+            category: "Productivity",
+            downloadUrl: "",
+            privacyUrl: "",
+            order: 1
         }
     });
 
     const [loading, setLoading] = useState(false);
-    const [iconFile, setIconFile] = useState<File | null>(null);
-    const [fileError, setFileError] = useState<string | null>(null);
+
+    // Logo state
+    const [logoFile, setLogoFile] = useState<File | null>(null);
+    const [logoPreview, setLogoPreview] = useState<string>(initialData?.logoUrl || "");
+
+    // Screenshot state
+    const [screenshotFiles, setScreenshotFiles] = useState<File[]>([]);
+    const [existingScreenshots, setExistingScreenshots] = useState<string[]>(initialData?.screenshots || []);
+
+    // Feature state
+    const [features, setFeatures] = useState<{ title: string, description: string, icon: string }[]>(initialData?.features || []);
+
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [autoSlug, setAutoSlug] = useState(!isEdit);
     const router = useRouter();
 
-    // Watch title and auto-generate slug
-    const title = watch('title');
-    const currentSlug = watch('slug');
+    // Watch name for auto-slug
+    const name = watch('name');
 
-    // Auto-generate slug when title changes (only if autoSlug is enabled)
-    useState(() => {
-        if (autoSlug && title) {
-            setValue('slug', generateSlug(title));
+    // Auto-generate slug when name changes
+    useEffect(() => {
+        if (autoSlug && name) {
+            setValue('slug', generateSlug(name));
         }
-    });
+    }, [name, autoSlug, setValue]);
 
-    const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newTitle = e.target.value;
+    const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newName = e.target.value;
         if (autoSlug) {
-            setValue('slug', generateSlug(newTitle));
+            setValue('slug', generateSlug(newName));
         }
     };
 
-    const handleSlugChange = () => {
-        // User manually edited slug, disable auto-generation
-        setAutoSlug(false);
-    };
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0] || null;
-        setFileError(null);
-
+    const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
         if (file) {
             const error = validateFile(file);
             if (error) {
-                setFileError(error);
-                setIconFile(null);
-                e.target.value = '';
+                alert(error);
                 return;
             }
+            setLogoFile(file);
+            setLogoPreview(URL.createObjectURL(file));
         }
+    };
 
-        setIconFile(file);
+    const handleScreenshotFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files || []);
+        const validFiles: File[] = [];
+        for (const file of files) {
+            if (validateFile(file)) continue; // Skip invalid
+            validFiles.push(file);
+        }
+        setScreenshotFiles(prev => [...prev, ...validFiles]);
+        e.target.value = '';
+    };
+
+    const removeScreenshotFile = (index: number) => {
+        setScreenshotFiles(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const removeExistingScreenshot = (index: number) => {
+        setExistingScreenshots(prev => prev.filter((_, i) => i !== index));
+    };
+
+    // Feature management
+    const addFeature = () => {
+        setFeatures([...features, { title: "", description: "", icon: "Star" }]);
+    };
+
+    const removeFeature = (index: number) => {
+        setFeatures(features.filter((_, i) => i !== index));
+    };
+
+    const updateFeature = (index: number, field: keyof typeof features[0], value: string) => {
+        const newFeatures = [...features];
+        newFeatures[index] = { ...newFeatures[index], [field]: value };
+        setFeatures(newFeatures);
     };
 
     const onSubmit = async (data: AppData) => {
@@ -112,38 +155,55 @@ export default function AppForm({ initialData, isEdit = false }: AppFormProps) {
         setSubmitError(null);
 
         try {
-            let iconUrl = initialData?.iconUrl || "";
-
-            if (iconFile) {
-                const validationError = validateFile(iconFile);
-                if (validationError) {
-                    setSubmitError(validationError);
-                    setLoading(false);
-                    return;
-                }
-
-                const storageRef = ref(storage, `icons/${Date.now()}-${iconFile.name}`);
-                const snapshot = await uploadBytes(storageRef, iconFile);
-                iconUrl = await getDownloadURL(snapshot.ref);
+            // Upload Logo
+            let finalLogoUrl = data.logoUrl;
+            if (logoFile) {
+                const fileExtension = logoFile.name.split('.').pop() || 'png';
+                const storagePath = `images/${data.slug}/logo.${fileExtension}`;
+                const storageRef = ref(storage, storagePath);
+                const snapshot = await uploadBytes(storageRef, logoFile);
+                finalLogoUrl = await getDownloadURL(snapshot.ref);
             }
 
-            const payload = {
+            // Upload Screenshots
+            const uploadScreenshotsPromise = async () => {
+                const currentImages = [...existingScreenshots];
+                if (screenshotFiles.length > 0) {
+                    const uploadPromises = screenshotFiles.map(async (file) => {
+                        const fileExtension = file.name.split('.').pop() || 'png';
+                        const uniqueId = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+                        const storagePath = `images/${data.slug}/screenshots/${uniqueId}.${fileExtension}`;
+                        const storageRef = ref(storage, storagePath);
+                        const snapshot = await uploadBytes(storageRef, file);
+                        return await getDownloadURL(snapshot.ref);
+                    });
+                    const newUrls = await Promise.all(uploadPromises);
+                    return [...currentImages, ...newUrls];
+                }
+                return currentImages;
+            };
+
+            const finalScreenshots = await uploadScreenshotsPromise();
+
+            const payload: AppData = {
                 ...data,
-                iconUrl,
+                logoUrl: finalLogoUrl,
+                screenshots: finalScreenshots,
+                features: features,
                 order: Number(data.order)
             };
 
             if (isEdit && initialData?.id) {
-                await updateDoc(doc(db, "apps", initialData.id), payload);
+                await updateDoc(doc(db, "apps", initialData.id), payload as any);
             } else {
-                await addDoc(collection(db, "apps"), payload);
+                await addDoc(collection(db, "apps"), payload as any);
             }
 
             router.push("/admin/apps");
             router.refresh();
         } catch (error) {
             console.error("Error saving app:", error);
-            setSubmitError(error instanceof Error ? error.message : "Error saving app. Please try again.");
+            setSubmitError(error instanceof Error ? error.message : "Error saving app.");
         } finally {
             setLoading(false);
         }
@@ -151,141 +211,253 @@ export default function AppForm({ initialData, isEdit = false }: AppFormProps) {
 
     const inputClass = "w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all";
     const labelClass = "block text-sm font-medium text-gray-300 mb-2";
-    const errorClass = "mt-2 text-sm text-red-400 flex items-center gap-1";
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-            <div className="rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/5 p-6 md:p-8">
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/5 p-6 md:p-8 space-y-6">
 
-                    {/* Icon Upload */}
-                    <div className="md:col-span-2">
-                        <label className={labelClass}>App Icon</label>
-                        <div className="flex items-center gap-4">
-                            <label htmlFor="icon-upload" className="cursor-pointer group">
-                                {initialData?.iconUrl && !iconFile ? (
-                                    // eslint-disable-next-line @next/next/no-img-element
-                                    <img src={initialData.iconUrl} alt="Current Icon" className="h-16 w-16 rounded-xl object-cover border border-white/10 group-hover:border-purple-500/50 transition-colors" />
-                                ) : iconFile ? (
-                                    <div className="h-16 w-16 rounded-xl bg-purple-500/10 flex items-center justify-center border border-purple-500/30">
-                                        <Image className="w-8 h-8 text-purple-400" />
-                                    </div>
-                                ) : (
-                                    <div className="h-16 w-16 rounded-xl bg-white/5 flex items-center justify-center border border-dashed border-white/20 group-hover:border-purple-500/50 group-hover:bg-purple-500/5 transition-all">
-                                        <Upload className="w-6 h-6 text-gray-500 group-hover:text-purple-400 transition-colors" />
-                                    </div>
-                                )}
+                {/* Logo Upload */}
+                <div>
+                    <label className={labelClass}>App Logo</label>
+                    <div className="flex items-center gap-6">
+                        <div className="h-24 w-24 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden relative group">
+                            {logoPreview ? (
+                                <img src={logoPreview} alt="Logo" className="w-full h-full object-cover" />
+                            ) : (
+                                <Upload className="w-8 h-8 text-gray-500" />
+                            )}
+                            <label className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition-opacity">
+                                <span className="text-xs text-white">Change</span>
+                                <input type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
                             </label>
-                            <div className="flex-1">
-                                <input
-                                    id="icon-upload"
-                                    type="file"
-                                    accept=".png,.jpg,.jpeg,.webp,.gif"
-                                    onChange={handleFileChange}
-                                    className="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-medium file:bg-purple-500/10 file:text-purple-400 hover:file:bg-purple-500/20 file:cursor-pointer file:transition-colors"
-                                />
-                                <p className="mt-1 text-xs text-gray-500">PNG, JPEG, WebP or GIF. Max 5MB.</p>
-                            </div>
                         </div>
-                        {fileError && (
-                            <p className={errorClass}><AlertCircle className="w-4 h-4" /> {fileError}</p>
-                        )}
+                        <div className="flex-1">
+                            <h3 className="text-white font-medium mb-1">Upload Logo</h3>
+                            <p className="text-sm text-gray-500 mb-3">Recommended size: 512x512px. PNG or JPG.</p>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleLogoChange}
+                                className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-purple-500/10 file:text-purple-400 hover:file:bg-purple-500/20"
+                            />
+                        </div>
                     </div>
+                </div>
 
-                    {/* Title */}
+                {/* Basic Info */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-white/5">
                     <div>
-                        <label className={labelClass}>App Title</label>
+                        <label className={labelClass}>App Name</label>
                         <input
-                            {...register("title", { required: "Title is required", onChange: handleTitleChange })}
-                            className={`${inputClass} ${errors.title ? 'border-red-500/50 ring-1 ring-red-500/50' : ''}`}
-                            placeholder="My Awesome App"
+                            {...register("name", { required: "Name is required", onChange: handleNameChange })}
+                            className={inputClass}
+                            placeholder="Walletta"
                         />
-                        {errors.title && <p className={errorClass}><AlertCircle className="w-4 h-4" /> {errors.title.message}</p>}
+                        {errors.name && <p className="text-red-400 text-sm mt-1">{errors.name.message}</p>}
                     </div>
 
-                    {/* Slug */}
                     <div>
-                        <label className={labelClass}>
-                            Slug (ID)
-                            {autoSlug && <span className="ml-2 text-xs text-purple-400">(auto)</span>}
-                        </label>
+                        <label className={labelClass}>Slug</label>
                         <input
-                            {...register("slug", { required: "Slug is required", onChange: handleSlugChange })}
-                            className={`${inputClass} ${errors.slug ? 'border-red-500/50 ring-1 ring-red-500/50' : ''}`}
-                            placeholder="my-awesome-app"
+                            {...register("slug", { required: "Slug is required" })}
+                            className={inputClass}
+                            placeholder="walletta"
+                            readOnly={autoSlug}
                         />
-                        {errors.slug && <p className={errorClass}><AlertCircle className="w-4 h-4" /> {errors.slug.message}</p>}
                     </div>
 
-                    {/* Play Store URL */}
-                    <div className="md:col-span-2">
-                        <label className={labelClass}>Play Store URL</label>
+                    <div>
+                        <label className={labelClass}>Developer</label>
                         <input
-                            {...register("playStoreUrl", { required: "Play Store URL is required" })}
-                            className={`${inputClass} ${errors.playStoreUrl ? 'border-red-500/50 ring-1 ring-red-500/50' : ''}`}
-                            placeholder="https://play.google.com/store/apps/details?id=..."
+                            {...register("developer", { required: "Developer is required" })}
+                            className={inputClass}
+                            placeholder="NexaraTechs Team"
                         />
-                        {errors.playStoreUrl && <p className={errorClass}><AlertCircle className="w-4 h-4" /> {errors.playStoreUrl.message}</p>}
                     </div>
 
-                    {/* Status */}
-                    <div className="md:col-span-2">
+                    <div>
+                        <label className={labelClass}>Category</label>
+                        <input
+                            {...register("category", { required: "Category is required" })}
+                            className={inputClass}
+                            placeholder="Finance"
+                        />
+                    </div>
+
+                    <div>
+                        <label className={labelClass}>Version</label>
+                        <input
+                            {...register("version", { required: "Version is required" })}
+                            className={inputClass}
+                            placeholder="1.0.0"
+                        />
+                    </div>
+
+                    <div>
+                        <label className={labelClass}>Release / Test Start Date</label>
+                        <input
+                            {...register("releaseDate", { required: "Date is required" })}
+                            className={inputClass}
+                            placeholder="10 December 2025"
+                        />
+                    </div>
+
+                    <div>
                         <label className={labelClass}>Status</label>
                         <select {...register("status")} className={inputClass}>
-                            <option value="live" className="bg-[#0a0a1a]">Live</option>
-                            <option value="closed_test" className="bg-[#0a0a1a]">Closed Test</option>
-                            <option value="development" className="bg-[#0a0a1a]">Development</option>
+                            <option value="Live" className="bg-[#0a0a1a]">Live</option>
+                            <option value="Beta" className="bg-[#0a0a1a]">Beta</option>
+                            <option value="Coming Soon" className="bg-[#0a0a1a]">Coming Soon</option>
                         </select>
                     </div>
+                </div>
 
-                    {/* Description */}
-                    <div className="md:col-span-2">
-                        <label className={labelClass}>Description</label>
+                {/* Descriptions */}
+                <div className="space-y-6 pt-4 border-t border-white/5">
+                    <div>
+                        <label className={labelClass}>Short Description</label>
                         <textarea
-                            {...register("description.en")}
-                            rows={4}
+                            {...register("shortDescription", { required: "Short description is required" })}
                             className={inputClass}
-                            placeholder="Describe your app..."
+                            rows={2}
+                            placeholder="A brief tagline..."
+                        />
+                    </div>
+
+                    <div>
+                        <label className={labelClass}>Full Description</label>
+                        <textarea
+                            {...register("fullDescription", { required: "Full description is required" })}
+                            className={inputClass}
+                            rows={6}
+                            placeholder="Detailed explanation of the app..."
                         />
                     </div>
                 </div>
+
+                {/* Features */}
+                <div className="pt-4 border-t border-white/5">
+                    <div className="flex items-center justify-between mb-4">
+                        <label className={labelClass}>Features</label>
+                        <button type="button" onClick={addFeature} className="text-sm text-purple-400 hover:text-purple-300">
+                            + Add Feature
+                        </button>
+                    </div>
+
+                    <div className="space-y-4">
+                        {features.map((feature, index) => (
+                            <div key={index} className="bg-white/5 p-4 rounded-xl border border-white/10 space-y-3">
+                                <div className="flex justify-between">
+                                    <h4 className="text-sm font-medium text-gray-400">Feature {index + 1}</h4>
+                                    <button type="button" onClick={() => removeFeature(index)} className="text-red-400 text-xs">Remove</button>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <input
+                                        value={feature.title}
+                                        onChange={(e) => updateFeature(index, 'title', e.target.value)}
+                                        placeholder="Title"
+                                        className={inputClass}
+                                    />
+                                    <input
+                                        value={feature.icon}
+                                        onChange={(e) => updateFeature(index, 'icon', e.target.value)}
+                                        placeholder="Icon Name (e.g. Star)"
+                                        className={inputClass}
+                                    />
+                                </div>
+                                <textarea
+                                    value={feature.description}
+                                    onChange={(e) => updateFeature(index, 'description', e.target.value)}
+                                    placeholder="Feature Description"
+                                    className={inputClass}
+                                    rows={2}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Screenshots */}
+                <div className="pt-4 border-t border-white/5">
+                    <label className={labelClass}>Screenshots</label>
+                    <div className="space-y-3">
+                        <div className="flex flex-wrap gap-2">
+                            {existingScreenshots.map((url, i) => (
+                                <div key={`existing-${i}`} className="relative group w-20 h-20">
+                                    <img src={url} alt={`Screenshot ${i}`} className="w-full h-full object-cover rounded-lg border border-white/10" />
+                                    <button
+                                        type="button"
+                                        onClick={() => removeExistingScreenshot(i)}
+                                        className="absolute -top-1 -right-1 bg-red-500 rounded-full p-0.5 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                                    >
+                                        <div className="w-3 h-3 flex items-center justify-center">×</div>
+                                    </button>
+                                </div>
+                            ))}
+                            {screenshotFiles.map((file, i) => (
+                                <div key={`new-${i}`} className="relative group w-20 h-20">
+                                    <img src={URL.createObjectURL(file)} alt={`New ${i}`} className="w-full h-full object-cover rounded-lg border border-purple-500/50" />
+                                    <button
+                                        type="button"
+                                        onClick={() => removeScreenshotFile(i)}
+                                        className="absolute -top-1 -right-1 bg-red-500 rounded-full p-0.5 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                                    >
+                                        <div className="w-3 h-3 flex items-center justify-center">×</div>
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+
+                        <input
+                            type="file"
+                            multiple
+                            accept="image/*"
+                            onChange={handleScreenshotFilesChange}
+                            className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-purple-500/10 file:text-purple-400 hover:file:bg-purple-500/20"
+                        />
+                    </div>
+                </div>
+
+                {/* URLs */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-white/5">
+                    <div>
+                        <label className={labelClass}>Download URL</label>
+                        <input
+                            {...register("downloadUrl")}
+                            className={inputClass}
+                            placeholder="#"
+                        />
+                    </div>
+                    <div>
+                        <label className={labelClass}>Privacy URL</label>
+                        <input
+                            {...register("privacyUrl")}
+                            className={inputClass}
+                            placeholder="/privacy"
+                        />
+                    </div>
+                </div>
+
             </div>
 
-            {/* Submit Error */}
+            {/* Error & Submit */}
             {submitError && (
-                <div className="rounded-xl bg-red-500/10 border border-red-500/20 p-4 flex items-center gap-3">
-                    <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
-                    <p className="text-sm text-red-400">{submitError}</p>
+                <div className="rounded-xl bg-red-500/10 border border-red-500/20 p-4 text-red-400 text-sm flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4" /> {submitError}
                 </div>
             )}
 
-            {/* Actions */}
             <div className="flex items-center justify-end gap-4">
-                <Link
-                    href="/admin/apps"
-                    className="px-5 py-2.5 rounded-xl text-gray-400 hover:text-white transition-colors"
-                >
-                    Cancel
-                </Link>
+                <Link href="/admin/apps" className="px-5 py-2 text-gray-400 hover:text-white">Cancel</Link>
                 <button
                     type="submit"
-                    disabled={loading || !!fileError}
-                    className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-6 py-2.5 rounded-xl font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-purple-500/25"
+                    disabled={loading}
+                    className="flex items-center gap-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-6 py-2 rounded-xl hover:opacity-90 disabled:opacity-50"
                 >
-                    {loading ? (
-                        <>
-                            <Loader2 className="w-5 h-5 animate-spin" />
-                            Saving...
-                        </>
-                    ) : (
-                        <>
-                            <Save className="w-5 h-5" />
-                            {isEdit ? 'Update App' : 'Create App'}
-                        </>
-                    )}
+                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                    {isEdit ? 'Update App' : 'Create App'}
                 </button>
             </div>
         </form>
     );
 }
-

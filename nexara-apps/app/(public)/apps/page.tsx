@@ -2,8 +2,12 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { apps } from "@/lib/data";
-import { ArrowRight, Sparkles, Download, ExternalLink } from "lucide-react";
+// import { apps } from "@/lib/data"; // Removed static data
+import { getApps } from "@/lib/firebase";
+import { getIcon } from "@/lib/icon-map";
+import { AppData } from "@/lib/data";
+import { useState, useEffect } from "react";
+import { ArrowRight, Sparkles, Download, ExternalLink, Loader2 } from "lucide-react";
 
 const containerVariants = {
     hidden: { opacity: 0 },
@@ -55,6 +59,31 @@ const getCategoryColor = (category: string) => {
 };
 
 export default function AppsPage() {
+    const [apps, setApps] = useState<AppData[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function loadApps() {
+            try {
+                const fetchedApps = await getApps();
+                setApps(fetchedApps);
+            } catch (error) {
+                console.error("Failed to load apps", error);
+            } finally {
+                setLoading(false);
+            }
+        }
+        loadApps();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-background flex items-center justify-center">
+                <Loader2 className="w-10 h-10 animate-spin text-primary" />
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-background text-foreground">
             {/* Background Effects */}
@@ -116,7 +145,7 @@ export default function AppsPage() {
                     className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8"
                 >
                     {apps.map((app) => {
-                        const IconComponent = app.icon;
+                        const IconComponent = getIcon(app.icon as string);
                         return (
                             <motion.div
                                 key={app.id}
@@ -126,12 +155,16 @@ export default function AppsPage() {
                                 <Link href={`/apps/${app.slug}`}>
                                     <div className="relative h-full rounded-2xl sm:rounded-3xl bg-card/50 backdrop-blur-sm border border-white/5 p-6 sm:p-8 overflow-hidden transition-all duration-500 hover:border-white/10 hover:shadow-2xl hover:shadow-primary/5">
                                         {/* Gradient Background */}
-                                        <div className={`absolute top-0 right-0 w-[200px] h-[200px] bg-gradient-to-br ${app.logoGradient} opacity-10 blur-[80px] rounded-full transition-opacity duration-500 group-hover:opacity-20`} />
+                                        <div className={`absolute top-0 right-0 w-[200px] h-[200px] bg-gradient-to-br from-purple-500/10 to-indigo-500/10 opacity-10 blur-[80px] rounded-full transition-opacity duration-500 group-hover:opacity-20`} />
 
                                         {/* App Icon & Status */}
                                         <div className="relative z-10 flex items-start justify-between mb-6">
-                                            <div className={`h-16 w-16 rounded-2xl bg-gradient-to-br ${app.logoGradient} flex items-center justify-center shadow-lg transform transition-transform duration-500 group-hover:-rotate-6 group-hover:scale-110`}>
-                                                <IconComponent className="text-white w-8 h-8" />
+                                            <div className="h-16 w-16 rounded-2xl bg-white/5 border border-white/10 overflow-hidden shadow-lg transform transition-transform duration-500 group-hover:-rotate-6 group-hover:scale-110 flex items-center justify-center">
+                                                {app.logoUrl ? (
+                                                    <img src={app.logoUrl} alt={app.name} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <span className="text-2xl font-bold text-white/50">{app.name.substring(0, 1)}</span>
+                                                )}
                                             </div>
                                             <span className={`px-3 py-1.5 rounded-full border text-xs font-bold uppercase tracking-wide ${getStatusColor(app.status)}`}>
                                                 {app.status}
@@ -166,22 +199,25 @@ export default function AppsPage() {
                                             {/* Features Preview */}
                                             <div className="pt-4 border-t border-white/5">
                                                 <div className="flex flex-wrap gap-2">
-                                                    {app.features.slice(0, 3).map((feature, index) => (
-                                                        <span
-                                                            key={index}
-                                                            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/70"
-                                                        >
-                                                            <feature.icon className="w-3 h-3" />
-                                                            {feature.title}
-                                                        </span>
-                                                    ))}
+                                                    {(app.features || []).slice(0, 3).map((feature, index) => {
+                                                        const FeatureIcon = getIcon(feature.icon as string);
+                                                        return (
+                                                            <span
+                                                                key={index}
+                                                                className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/70"
+                                                            >
+                                                                <FeatureIcon className="w-3 h-3" />
+                                                                {feature.title}
+                                                            </span>
+                                                        );
+                                                    })}
                                                 </div>
                                             </div>
 
                                             {/* CTA */}
                                             <div className="flex items-center justify-between pt-4">
                                                 <span className="text-xs text-muted-foreground/60">
-                                                    Updated {app.lastUpdated}
+                                                    Released {app.releaseDate}
                                                 </span>
                                                 <span className="inline-flex items-center gap-2 text-sm font-medium text-primary group-hover:gap-3 transition-all">
                                                     Learn More

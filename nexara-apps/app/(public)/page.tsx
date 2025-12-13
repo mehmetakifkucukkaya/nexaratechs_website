@@ -2,6 +2,8 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { getApps } from "@/lib/firebase";
+import { useState, useEffect } from "react";
 import { ArrowRight, Smartphone, Gamepad2, Stars, Rocket, ChevronRight, Zap, Globe, Shield } from "lucide-react";
 
 // Animation Variants
@@ -21,6 +23,12 @@ const staggerContainer = {
 };
 
 export default function LandingPage() {
+    const [appCount, setAppCount] = useState(0);
+
+    useEffect(() => {
+        getApps().then(apps => setAppCount(apps.length));
+    }, []);
+
     return (
         <div className="min-h-screen bg-background text-foreground selection:bg-primary/30">
 
