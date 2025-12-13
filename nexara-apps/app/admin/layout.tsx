@@ -4,6 +4,7 @@ import Link from "next/link";
 import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { logoutAdmin } from "@/lib/auth";
+import { useState } from "react";
 
 export default function AdminLayout({
     children,
@@ -11,11 +12,24 @@ export default function AdminLayout({
     children: React.ReactNode;
 }) {
     const router = useRouter();
+    const [loggingOut, setLoggingOut] = useState(false);
 
     const handleLogout = async () => {
-        await logoutAdmin();
-        document.cookie = "admin_session=; path=/; max-age=0";
-        router.push("/login");
+        setLoggingOut(true);
+        try {
+            // Sign out from Firebase
+            await logoutAdmin();
+
+            // Clear the secure cookie via API
+            await fetch('/api/auth/logout', { method: 'POST' });
+
+            router.push("/login");
+            router.refresh();
+        } catch (error) {
+            console.error('Logout error:', error);
+        } finally {
+            setLoggingOut(false);
+        }
     };
 
     return (
@@ -37,9 +51,13 @@ export default function AdminLayout({
                     </Link>
                 </nav>
                 <div className="absolute bottom-4 left-4 right-4">
-                    <button onClick={handleLogout} className="flex items-center w-full px-4 py-2 text-red-400 hover:bg-slate-800 rounded transition-colors">
+                    <button
+                        onClick={handleLogout}
+                        disabled={loggingOut}
+                        className="flex items-center w-full px-4 py-2 text-red-400 hover:bg-slate-800 rounded transition-colors disabled:opacity-50"
+                    >
                         <LogOut className="w-4 h-4 mr-2" />
-                        Logout
+                        {loggingOut ? 'Logging out...' : 'Logout'}
                     </button>
                 </div>
             </aside>

@@ -2,30 +2,47 @@
 
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { Menu, X } from "lucide-react";
+
+// Simple debounce helper
+function debounce<T extends (...args: Parameters<T>) => void>(
+    func: T,
+    wait: number
+): (...args: Parameters<T>) => void {
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    return (...args: Parameters<T>) => {
+        if (timeoutId) clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => func(...args), wait);
+    };
+}
 
 export default function FloatingNavbar() {
     const [scrolled, setScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     useEffect(() => {
-        const handleScroll = () => {
+        const handleScroll = debounce(() => {
             setScrolled(window.scrollY > 20);
-        };
-        window.addEventListener("scroll", handleScroll);
+        }, 10);
+
+        // Set initial state
+        setScrolled(window.scrollY > 20);
+
+        window.addEventListener("scroll", handleScroll, { passive: true });
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
     // Close mobile menu on resize to desktop
     useEffect(() => {
-        const handleResize = () => {
+        const handleResize = debounce(() => {
             if (window.innerWidth >= 768) {
                 setMobileMenuOpen(false);
             }
-        };
-        window.addEventListener("resize", handleResize);
+        }, 100);
+
+        window.addEventListener("resize", handleResize, { passive: true });
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
@@ -44,6 +61,7 @@ export default function FloatingNavbar() {
                     "fixed top-0 left-0 right-0 z-50 flex justify-center px-4 transition-all duration-300",
                     scrolled ? "pt-2" : "pt-4 sm:pt-6"
                 )}
+                role="banner"
             >
                 <div className={cn(
                     "flex items-center justify-between px-4 sm:px-6 py-3 rounded-full backdrop-blur-md transition-all duration-300 border",
@@ -52,15 +70,15 @@ export default function FloatingNavbar() {
                         : "bg-background/50 sm:bg-transparent border-white/10 sm:border-transparent w-full sm:container"
                 )}>
                     {/* Logo */}
-                    <Link href="/" className="flex items-center gap-2">
-                        <div className="h-8 w-8 rounded-lg bg-gradient-to-tr from-primary to-indigo-500 flex items-center justify-center text-white font-bold text-sm">
+                    <Link href="/" className="flex items-center gap-2" aria-label="NexaraTechs - Go to homepage">
+                        <div className="h-8 w-8 rounded-lg bg-gradient-to-tr from-primary to-indigo-500 flex items-center justify-center text-white font-bold text-sm" aria-hidden="true">
                             N
                         </div>
                         <span className="font-bold text-lg tracking-tight hidden sm:block">NexaraTechs</span>
                     </Link>
 
                     {/* Desktop Navigation */}
-                    <nav className="hidden md:flex items-center gap-1 sm:gap-2">
+                    <nav className="hidden md:flex items-center gap-1 sm:gap-2" aria-label="Main navigation">
                         {navItems.map((item) => (
                             <Link
                                 key={item.name}
@@ -85,13 +103,15 @@ export default function FloatingNavbar() {
                     {/* Mobile Menu Button */}
                     <button
                         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                        className="md:hidden p-2 rounded-lg hover:bg-white/10 transition-colors"
-                        aria-label="Toggle menu"
+                        className="md:hidden p-2 rounded-lg hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background"
+                        aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+                        aria-expanded={mobileMenuOpen}
+                        aria-controls="mobile-menu"
                     >
                         {mobileMenuOpen ? (
-                            <X className="w-5 h-5" />
+                            <X className="w-5 h-5" aria-hidden="true" />
                         ) : (
-                            <Menu className="w-5 h-5" />
+                            <Menu className="w-5 h-5" aria-hidden="true" />
                         )}
                     </button>
                 </div>
