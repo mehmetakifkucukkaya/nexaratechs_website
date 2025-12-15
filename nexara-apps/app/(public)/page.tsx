@@ -1,10 +1,10 @@
 "use client";
 
+import { AppData, createTesterApplication, getApps } from "@/lib/db";
 import { motion } from "framer-motion";
+import { ChevronRight, Rocket, Shield, Smartphone } from "lucide-react";
 import Link from "next/link";
-import { getApps } from "@/lib/firebase";
-import { useState, useEffect } from "react";
-import { ArrowRight, Smartphone, Gamepad2, Stars, Rocket, ChevronRight, Zap, Globe, Shield } from "lucide-react";
+import { useEffect, useState } from "react";
 
 // Animation Variants
 const fadeInUp = {
@@ -23,10 +23,35 @@ const staggerContainer = {
 };
 
 export default function LandingPage() {
-    const [appCount, setAppCount] = useState(0);
+    const [apps, setApps] = useState<AppData[]>([]);
+    const [email, setEmail] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
+
+    const handleJoin = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!email) return;
+
+        setIsSubmitting(true);
+        try {
+            await createTesterApplication({
+                email,
+                fullName: 'Website Visitor',
+                device: 'Web Client',
+                status: 'pending'
+            });
+            setIsSuccess(true);
+            setEmail("");
+        } catch (error) {
+            console.error("Error joining beta:", error);
+            alert("Something went wrong. Please try again.");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     useEffect(() => {
-        getApps().then(apps => setAppCount(apps.length));
+        getApps().then(data => setApps(data));
     }, []);
 
     return (
@@ -88,64 +113,98 @@ export default function LandingPage() {
                     <p className="text-muted-foreground text-lg">Our latest releases pushing the boundaries.</p>
                 </motion.div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 max-w-6xl mx-auto h-auto md:h-[600px]">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 max-w-6xl mx-auto auto-rows-[minmax(200px,auto)] md:auto-rows-[minmax(280px,auto)]">
+                    {apps.map((app, index) => {
+                        const isFeatured = index === 0;
+                        const Wrapper = ({ children }: { children: React.ReactNode }) => (
+                            <Link href={`/apps/${app.slug}`} className={`block h-full ${isFeatured ? 'md:col-span-2 md:row-span-2' : ''}`}>
+                                {children}
+                            </Link>
+                        );
 
-                    {/* Walletta (Large) */}
-                    <Link href="/apps/walletta" className="md:col-span-2 md:row-span-2 block h-full">
-                        <motion.div
-                            whileHover={{ scale: 1.02 }}
-                            className="relative h-full group rounded-2xl sm:rounded-[2.5rem] bg-card border border-white/5 p-5 sm:p-8 overflow-hidden shadow-2xl flex flex-col justify-between cursor-pointer min-h-[280px] md:min-h-0"
-                        >
-                            <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-gradient-to-br from-blue-500/20 to-purple-500/20 blur-[80px] rounded-full group-hover:bg-blue-500/30 transition-colors" />
+                        return (
+                            <Wrapper key={app.id || index}>
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    whileInView={{ opacity: 1, scale: 1 }}
+                                    whileHover={{ scale: 1.02 }}
+                                    viewport={{ once: true }}
+                                    transition={{ delay: index * 0.1 }}
+                                    className={`relative h-full group rounded-2xl sm:rounded-[2.5rem] bg-card border border-white/5 p-5 sm:p-8 overflow-hidden shadow-xl flex flex-col justify-between cursor-pointer ${isFeatured ? 'min-h-[280px] md:min-h-[600px]' : 'min-h-[200px]'
+                                        }`}
+                                >
+                                    {/* Background Decor for Featured */}
+                                    {isFeatured && (
+                                        <>
+                                            <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-gradient-to-br from-blue-500/20 to-purple-500/20 blur-[80px] rounded-full group-hover:bg-blue-500/30 transition-colors" />
+                                            <div className="absolute bottom-[-50px] right-[-50px] md:bottom-[-20px] md:right-[-20px] w-64 h-64 bg-slate-900 rounded-3xl border border-slate-800 shadow-2xl rotate-[-10deg] opacity-80 group-hover:rotate-[-5deg] group-hover:scale-105 transition-all duration-500 hidden md:block" />
+                                        </>
+                                    )}
 
-                            <div className="z-10">
-                                <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-blue-600 to-cyan-500 mb-6 flex items-center justify-center shadow-lg transform group-hover:-rotate-6 transition-transform">
-                                    <Zap className="text-white w-8 h-8" />
-                                </div>
-                                <h3 className="text-2xl sm:text-4xl font-bold mb-2 sm:mb-3">Walletta</h3>
-                                <p className="text-sm sm:text-lg text-muted-foreground max-w-md">The ultimate personal finance companion. Track expenses, set budgets, and achieve financial freedom with an interface that feels like magic.</p>
-                            </div>
+                                    <div className="z-10 relative">
+                                        <div className={`h-14 w-14 sm:h-16 sm:w-16 rounded-2xl flex items-center justify-center shadow-lg mb-4 sm:mb-6 ${isFeatured
+                                            ? 'bg-gradient-to-br from-blue-600 to-cyan-500 transform group-hover:-rotate-6 transition-transform'
+                                            : 'bg-gradient-to-br from-purple-500 to-pink-500'
+                                            }`}>
+                                            {app.logoUrl ? (
+                                                <img src={app.logoUrl} alt={app.name} className="w-8 h-8 sm:w-10 sm:h-10 object-contain drop-shadow-md" />
+                                            ) : (
+                                                <Smartphone className="text-white w-7 h-7 sm:w-8 sm:h-8" />
+                                            )}
+                                        </div>
 
-                            <div className="mt-8 flex gap-3 z-10">
-                                <span className="px-4 py-1.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 text-sm font-medium">Finance</span>
-                                <span className="px-4 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-sm font-medium">Available Now</span>
-                            </div>
+                                        {/* Badges */}
+                                        <div className="flex flex-wrap gap-2 mb-3">
+                                            {app.status === 'Beta' && (
+                                                <span className="px-3 py-1 rounded-full bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 text-xs font-bold uppercase tracking-wide">
+                                                    Beta
+                                                </span>
+                                            )}
+                                            {app.status === 'Live' && (
+                                                <span className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-bold uppercase tracking-wide">
+                                                    Live
+                                                </span>
+                                            )}
+                                        </div>
 
-                            <div className="absolute bottom-[-50px] right-[-50px] md:bottom-[-20px] md:right-[-20px] w-64 h-64 bg-slate-900 rounded-3xl border border-slate-800 shadow-2xl rotate-[-10deg] opacity-80 group-hover:rotate-[-5deg] group-hover:scale-105 transition-all duration-500"></div>
-                        </motion.div>
-                    </Link>
+                                        <h3 className={`font-bold mb-2 ${isFeatured ? 'text-2xl sm:text-4xl' : 'text-xl sm:text-2xl'}`}>
+                                            {app.name}
+                                        </h3>
+                                        <p className={`text-muted-foreground ${isFeatured ? 'text-sm sm:text-lg max-w-md' : 'text-sm line-clamp-3'}`}>
+                                            {app.shortDescription}
+                                        </p>
+                                    </div>
 
-                    {/* Dream AI (Small 1) */}
-                    <Link href="/apps/dream-ai" className="block h-full">
-                        <motion.div
-                            whileHover={{ scale: 1.02 }}
-                            className="relative h-full group rounded-2xl sm:rounded-[2.5rem] bg-card border border-white/5 p-5 sm:p-8 overflow-hidden shadow-xl cursor-pointer min-h-[200px] md:min-h-0"
-                        >
-                            <div className="mb-4 flex justify-between items-start">
-                                <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
-                                    <Stars className="text-white w-7 h-7" />
-                                </div>
-                                <span className="px-3 py-1 rounded-full bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 text-xs font-bold uppercase tracking-wide">Beta</span>
-                            </div>
-                            <h3 className="text-2xl font-bold mb-2">Dream AI</h3>
-                            <p className="text-sm text-muted-foreground">Unlock the secrets of your subconscious with AI-powered dream interpretation.</p>
-                        </motion.div>
-                    </Link>
+                                    {/* Footer tags for featured */}
+                                    {isFeatured && (
+                                        <div className="mt-8 flex gap-3 z-10 relative">
+                                            <span className="px-4 py-1.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 text-sm font-medium">
+                                                {app.category || 'App'}
+                                            </span>
+                                        </div>
+                                    )}
+                                </motion.div>
+                            </Wrapper>
+                        );
+                    })}
 
-                    {/* Coming Soon (Small 2) */}
+                    {/* Coming Soon Card (Always present) */}
                     <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
                         whileHover={{ scale: 1.02 }}
-                        className="relative group rounded-2xl sm:rounded-[2.5rem] bg-white/5 border border-dashed border-white/10 p-5 sm:p-8 overflow-hidden flex flex-col items-center justify-center text-center gap-4 hover:bg-white/10 transition-colors min-h-[200px] md:min-h-0"
+                        viewport={{ once: true }}
+                        transition={{ delay: apps.length * 0.1 }}
+                        className="relative group rounded-2xl sm:rounded-[2.5rem] bg-white/5 border border-dashed border-white/10 p-5 sm:p-8 overflow-hidden flex flex-col items-center justify-center text-center gap-4 hover:bg-white/10 transition-colors min-h-[200px]"
                     >
                         <div className="h-16 w-16 rounded-full bg-white/5 flex items-center justify-center">
                             <Rocket className="w-8 h-8 text-muted-foreground opacity-50" />
                         </div>
                         <div>
                             <h3 className="text-xl font-bold text-muted-foreground">Next Big Thing</h3>
-                            <p className="text-xs text-muted-foreground/60 mt-1">Coming Q3 2025</p>
+                            <p className="text-xs text-muted-foreground/60 mt-1">Coming {new Date().getFullYear() + 1}</p>
                         </div>
                     </motion.div>
-
                 </div>
             </section>
 
@@ -164,16 +223,39 @@ export default function LandingPage() {
                         </p>
 
                         <div className="bg-white/10 backdrop-blur-xl p-2 rounded-2xl max-w-md mx-auto border border-white/20 shadow-2xl">
-                            <form className="flex flex-col gap-2">
-                                <input
-                                    type="email"
-                                    placeholder="Enter your email address"
-                                    className="w-full bg-transparent border-none text-white placeholder:text-indigo-200 focus:ring-0 px-4 py-3 outline-none"
-                                />
-                                <button type="button" className="w-full bg-white text-indigo-900 rounded-xl font-bold py-3 hover:bg-indigo-50 transition-colors text-lg">
-                                    Get Early Access
-                                </button>
-                            </form>
+                            {isSuccess ? (
+                                <div className="py-8 px-4 text-center">
+                                    <div className="h-16 w-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <Shield className="w-8 h-8" />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-white mb-2">Welcome Aboard!</h3>
+                                    <p className="text-indigo-200">You've been added to our priority waiting list. We'll be in touch soon.</p>
+                                    <button
+                                        onClick={() => setIsSuccess(false)}
+                                        className="mt-4 text-sm text-indigo-300 hover:text-white underline"
+                                    >
+                                        Register another email
+                                    </button>
+                                </div>
+                            ) : (
+                                <form onSubmit={handleJoin} className="flex flex-col gap-2">
+                                    <input
+                                        type="email"
+                                        required
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        placeholder="Enter your email address"
+                                        className="w-full bg-transparent border-none text-white placeholder:text-indigo-200 focus:ring-0 px-4 py-3 outline-none"
+                                    />
+                                    <button
+                                        type="submit"
+                                        disabled={isSubmitting}
+                                        className="w-full bg-white text-indigo-900 rounded-xl font-bold py-3 hover:bg-indigo-50 transition-colors text-lg disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                    >
+                                        {isSubmitting ? 'Joining...' : 'Get Early Access'}
+                                    </button>
+                                </form>
+                            )}
                         </div>
                         <div className="flex items-center justify-center gap-2 text-indigo-200 text-sm opacity-80 w-full">
                             <Shield className="w-4 h-4" />
