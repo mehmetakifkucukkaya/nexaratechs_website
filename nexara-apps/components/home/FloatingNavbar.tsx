@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect, useCallback } from "react";
 import { cn } from "@/lib/utils";
+import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
 // Simple debounce helper
 function debounce<T extends (...args: Parameters<T>) => void>(
@@ -64,17 +64,22 @@ export default function FloatingNavbar() {
                 role="banner"
             >
                 <div className={cn(
-                    "flex items-center justify-between px-4 sm:px-6 py-3 rounded-full backdrop-blur-md transition-all duration-300 border",
+                    "flex items-center justify-between px-4 sm:px-6 py-3 rounded-full backdrop-blur-xl transition-all duration-300 border",
                     scrolled
-                        ? "bg-background/80 border-border shadow-lg w-full sm:w-[90%] md:w-[70%]"
-                        : "bg-background/50 sm:bg-transparent border-white/10 sm:border-transparent w-full sm:container"
+                        ? "bg-[#0A0A0A]/80 border-white/10 shadow-xl shadow-indigo-500/5 w-full sm:w-[90%] md:w-[70%]"
+                        : "bg-transparent border-transparent w-full sm:container"
                 )}>
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2" aria-label="NexaraTechs - Go to homepage">
-                        <div className="h-8 w-8 rounded-lg bg-gradient-to-tr from-primary to-indigo-500 flex items-center justify-center text-white font-bold text-sm" aria-hidden="true">
+                        <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-indigo-500/20" aria-hidden="true">
                             N
                         </div>
-                        <span className="font-bold text-lg tracking-tight hidden sm:block">NexaraTechs</span>
+                        <span className={cn(
+                            "font-bold text-lg tracking-tight hidden sm:block bg-clip-text text-transparent bg-gradient-to-r",
+                            scrolled ? "from-white to-white/90" : "from-foreground to-foreground/80"
+                        )}>
+                            NexaraTechs
+                        </span>
                     </Link>
 
                     {/* Desktop Navigation */}
@@ -83,7 +88,12 @@ export default function FloatingNavbar() {
                             <Link
                                 key={item.name}
                                 href={item.href}
-                                className="px-4 py-2 text-sm font-medium text-foreground/70 hover:text-foreground rounded-full hover:bg-foreground/5 transition-colors"
+                                className={cn(
+                                    "px-4 py-2 text-sm font-medium rounded-full transition-all",
+                                    scrolled
+                                        ? "text-white/70 hover:text-white hover:bg-white/5"
+                                        : "text-foreground/70 hover:text-foreground hover:bg-foreground/5"
+                                )}
                             >
                                 {item.name}
                             </Link>
@@ -94,7 +104,7 @@ export default function FloatingNavbar() {
                     <div className="hidden md:flex items-center gap-4">
                         <Link
                             href="#contact"
-                            className="px-5 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors shadow-lg shadow-primary/25"
+                            className="px-5 py-2 rounded-full bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:scale-105"
                         >
                             Join Beta
                         </Link>
@@ -103,7 +113,10 @@ export default function FloatingNavbar() {
                     {/* Mobile Menu Button */}
                     <button
                         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                        className="md:hidden p-2 rounded-lg hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background"
+                        className={cn(
+                            "md:hidden p-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                            scrolled ? "text-white/80 hover:bg-white/10" : "text-foreground/80 hover:bg-foreground/5"
+                        )}
                         aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
                         aria-expanded={mobileMenuOpen}
                         aria-controls="mobile-menu"
@@ -138,14 +151,14 @@ export default function FloatingNavbar() {
                             transition={{ duration: 0.2 }}
                             className="fixed top-20 left-4 right-4 z-50 md:hidden"
                         >
-                            <div className="bg-background/95 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-2xl">
+                            <div className="bg-[#0A0A0A]/95 backdrop-blur-3xl border border-white/10 rounded-2xl p-4 shadow-2xl">
                                 <nav className="flex flex-col gap-1">
                                     {navItems.map((item) => (
                                         <Link
                                             key={item.name}
                                             href={item.href}
                                             onClick={() => setMobileMenuOpen(false)}
-                                            className="px-4 py-3 text-base font-medium text-foreground/80 hover:text-foreground rounded-xl hover:bg-white/5 transition-colors"
+                                            className="px-4 py-3 text-base font-medium text-white/80 hover:text-white rounded-xl hover:bg-white/5 transition-colors"
                                         >
                                             {item.name}
                                         </Link>
@@ -155,7 +168,7 @@ export default function FloatingNavbar() {
                                     <Link
                                         href="#contact"
                                         onClick={() => setMobileMenuOpen(false)}
-                                        className="flex items-center justify-center w-full px-5 py-3 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+                                        className="flex items-center justify-center w-full px-5 py-3 rounded-xl bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-500 transition-colors shadow-lg shadow-indigo-500/20"
                                     >
                                         Join Beta
                                     </Link>

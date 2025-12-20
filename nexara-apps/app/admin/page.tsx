@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { Plus, AppWindow, Users, TrendingUp, Clock, ArrowUpRight, Loader2 } from "lucide-react";
-import { collection, query, orderBy, limit, getDocs, getCountFromServer } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { AppData, TesterData } from "@/lib/db";
+import { db } from "@/lib/firebase";
+import { collection, getCountFromServer, getDocs, limit, orderBy, query } from "firebase/firestore";
+import { AppWindow, ArrowUpRight, Clock, Loader2, Plus, TrendingUp, Users } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
 export default function AdminDashboard() {
     const [loading, setLoading] = useState(true);
@@ -47,9 +47,9 @@ export default function AdminDashboard() {
 
     const getStatusStyle = (status: string) => {
         switch (status) {
-            case 'live':
+            case 'Live':
                 return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
-            case 'development':
+            case 'Beta':
                 return 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20';
             default:
                 return 'bg-gray-500/10 text-gray-400 border-gray-500/20';
@@ -124,7 +124,7 @@ export default function AdminDashboard() {
                             <span className="text-xs text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-full">Active</span>
                         </div>
                         <div className="text-3xl font-bold text-white mb-1">
-                            {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : recentApps.filter(a => a.status === 'live').length}
+                            {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : recentApps.filter(a => a.status === 'Live').length}
                         </div>
                         <p className="text-sm text-gray-400">Live Apps</p>
                     </div>
@@ -172,16 +172,16 @@ export default function AdminDashboard() {
                                             href={`/admin/apps/edit/${app.id}`}
                                             className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/[0.03] transition-colors"
                                         >
-                                            {app.iconUrl ? (
+                                            {app.logoUrl ? (
                                                 // eslint-disable-next-line @next/next/no-img-element
-                                                <img src={app.iconUrl} alt={app.title} className="h-10 w-10 rounded-lg object-cover" />
+                                                <img src={app.logoUrl} alt={app.name} className="h-10 w-10 rounded-lg object-cover" />
                                             ) : (
                                                 <div className="h-10 w-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
                                                     <AppWindow className="w-5 h-5 text-purple-400" />
                                                 </div>
                                             )}
                                             <div className="flex-1 min-w-0">
-                                                <p className="font-medium text-white truncate">{app.title}</p>
+                                                <p className="font-medium text-white truncate">{app.name}</p>
                                                 <p className="text-xs text-gray-500">{app.slug}</p>
                                             </div>
                                             <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium border ${getStatusStyle(app.status)}`}>

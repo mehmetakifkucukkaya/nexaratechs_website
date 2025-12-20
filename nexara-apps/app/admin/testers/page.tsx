@@ -1,19 +1,28 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
-import { collection, query, orderBy, getDocs, deleteDoc, doc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import { TesterData, AppData, getApps } from "@/lib/db";
-import {
-    Users, Loader2, Mail, Smartphone, Calendar, Search, ChevronLeft, ChevronRight,
-    Trash2, Download, CheckCircle, XCircle, Clock, Eye, Filter
-} from "lucide-react";
-import { useToast } from "@/components/admin/Toast";
 import { ConfirmModal } from "@/components/admin/ConfirmModal";
-import { TesterDetailModal } from "@/components/admin/TesterDetailModal";
 import { TesterAddModal } from "@/components/admin/TesterAddModal";
+import { TesterDetailModal } from "@/components/admin/TesterDetailModal";
 import { TesterImportModal } from "@/components/admin/TesterImportModal";
-import { Plus, Upload } from "lucide-react";
+import { useToast } from "@/components/admin/Toast";
+import { AppData, getApps, TesterData } from "@/lib/db";
+import { db } from "@/lib/firebase";
+import { collection, deleteDoc, doc, getDocs, orderBy, query } from "firebase/firestore";
+import {
+    CheckCircle,
+    ChevronLeft, ChevronRight,
+    Clock,
+    Download,
+    Eye,
+    Loader2,
+    Plus,
+    Search,
+    Trash2,
+    Upload,
+    Users,
+    XCircle
+} from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -114,7 +123,7 @@ export default function TestersPage() {
             t.email,
             t.device,
             t.status || 'pending',
-            apps.find(a => a.id === t.assignedAppId)?.title || '',
+            apps.find(a => a.id === t.assignedAppId)?.name || '',
             t.adminNotes || '',
             t.appliedAt?.seconds ? new Date(t.appliedAt.seconds * 1000).toISOString() : ''
         ]);
@@ -330,7 +339,7 @@ export default function TestersPage() {
                                             <td className="p-6 text-gray-400">
                                                 {tester.assignedAppId ? (
                                                     <span className="text-purple-400">
-                                                        {apps.find(a => a.id === tester.assignedAppId)?.title || 'Unknown'}
+                                                        {apps.find(a => a.id === tester.assignedAppId)?.name || 'Unknown'}
                                                     </span>
                                                 ) : (
                                                     <span className="text-gray-500">Not assigned</span>

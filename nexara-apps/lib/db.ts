@@ -1,19 +1,17 @@
 // lib/db.ts
-import { db } from "./firebase";
 import {
+    addDoc,
     collection,
-    getDocs,
     doc,
     getDoc,
-    query,
-    where,
+    getDocs,
     orderBy,
-    addDoc,
-    updateDoc,
-    deleteDoc,
+    query,
     serverTimestamp,
-    Timestamp
+    Timestamp,
+    where
 } from "firebase/firestore";
+import { db } from "./firebase";
 
 // Types
 export interface AppData {
@@ -82,4 +80,22 @@ export const createTesterApplication = async (data: TesterData) => {
         ...data,
         appliedAt: serverTimestamp()
     });
+};
+// Subscribe to newsletter
+export const subscribeToNewsletter = async (email: string) => {
+    // Check if already subscribed
+    const q = query(collection(db, "subscribers"), where("email", "==", email));
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+        return { success: true, message: "Already subscribed" };
+    }
+
+    await addDoc(collection(db, "subscribers"), {
+        email,
+        subscribedAt: serverTimestamp(),
+        source: "footer_newsletter"
+    });
+
+    return { success: true };
 };

@@ -1,4 +1,4 @@
-import { Zap, Stars, Shield, Smartphone, Globe, BarChart3, Lock, Zap as FastIcon, Sparkles, Moon, Download, Share2 } from "lucide-react";
+import { BarChart3, Zap as FastIcon, Globe, Moon, Share2, Shield, Smartphone, Sparkles, Stars, Zap } from "lucide-react";
 
 export interface AppData {
     id: string;
@@ -22,6 +22,8 @@ export interface AppData {
     downloadUrl?: string; // Play Store / App Store link
     privacyUrl?: string;
     primaryColor: string; // Tailwind class or hex for theming
+    logoUrl?: string;
+    releaseDate?: string;
 }
 
 export const apps: AppData[] = [
