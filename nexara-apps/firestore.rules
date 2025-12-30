@@ -18,5 +18,21 @@ service cloud.firestore {
     match /admins/{adminId} {
       allow read, write: if request.auth != null;
     }
+
+    // Counters - Public read/write (for generating IDs)
+    match /counters/{counterId} {
+      allow read, create, update: if true;
+    }
+
+    // Beta Emails - Public read/create (for uniqueness check)
+    match /betaEmails/{email} {
+      allow read, create: if true;
+    }
+
+    // Beta Users - Public create (using sequential ID), admin read
+    match /betaUsers/{userId} {
+      allow create: if true;
+      allow read, update, delete: if request.auth != null;
+    }
   }
 }

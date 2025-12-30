@@ -1,7 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/lib/LanguageContext";
-import { createTesterApplication } from "@/lib/db";
+import { subscribeToBeta } from "@/lib/db";
 import { Shield } from "lucide-react";
 import { useState } from "react";
 
@@ -17,12 +17,7 @@ export default function ContactForm() {
 
         setIsSubmitting(true);
         try {
-            await createTesterApplication({
-                email,
-                fullName: 'Website Visitor',
-                device: 'Web Client',
-                status: 'pending'
-            });
+            await subscribeToBeta(email);
             setIsSuccess(true);
             setEmail("");
         } catch (error) {
