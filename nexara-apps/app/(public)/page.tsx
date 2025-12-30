@@ -3,6 +3,9 @@ import ContactForm from "@/components/home/ContactForm";
 import Hero from "@/components/home/Hero";
 import { getApps } from "@/lib/db";
 
+// Force dynamic rendering to prevent static generation issues
+export const dynamic = "force-dynamic";
+
 export default async function LandingPage() {
     const apps = await getApps();
 

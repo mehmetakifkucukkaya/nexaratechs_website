@@ -10,6 +10,9 @@ import { getIcon } from "@/lib/icon-map";
 import { ArrowRight, Download, ExternalLink, Loader2, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 
+// Force dynamic rendering to prevent static generation issues
+export const dynamic = "force-dynamic";
+
 const containerVariants = {
     hidden: { opacity: 0 },
     visible: {

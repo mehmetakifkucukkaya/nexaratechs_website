@@ -304,10 +304,18 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     );
 }
 
+// Default fallback for SSR
+const defaultLanguageContext: LanguageContextType = {
+    language: "en",
+    setLanguage: () => { },
+    t: (key: string) => translations.en[key] || key,
+};
+
 export function useLanguage() {
     const context = useContext(LanguageContext);
+    // Return default context during SSR instead of throwing error
     if (context === undefined) {
-        throw new Error("useLanguage must be used within a LanguageProvider");
+        return defaultLanguageContext;
     }
     return context;
 }

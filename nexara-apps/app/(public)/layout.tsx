@@ -1,3 +1,5 @@
+"use client";
+
 import Footer from "@/components/Footer";
 import FloatingNavbar from "@/components/home/FloatingNavbar";
 import SkipLink from "@/components/SkipLink";
