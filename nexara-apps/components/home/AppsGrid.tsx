@@ -46,7 +46,7 @@ export default function AppsGrid({ apps }: AppsGridProps) {
                                 {/* Background Decor for Featured */}
                                 {isFeatured && (
                                     <>
-                                        <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-gradient-to-br from-blue-500/20 to-purple-500/20 blur-[80px] rounded-full group-hover:bg-blue-500/30 transition-colors" />
+                                        <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-gradient-to-br from-blue-500/10 to-purple-500/10 blur-[80px] rounded-full group-hover:from-blue-500/25 group-hover:to-purple-500/25 transition-all duration-500" />
                                         <div className="absolute bottom-[-50px] right-[-50px] md:bottom-[-20px] md:right-[-20px] w-64 h-64 bg-slate-900 rounded-3xl border border-slate-800 shadow-2xl rotate-[-10deg] opacity-80 group-hover:rotate-[-5deg] group-hover:scale-105 transition-all duration-500 hidden md:block" />
                                     </>
                                 )}

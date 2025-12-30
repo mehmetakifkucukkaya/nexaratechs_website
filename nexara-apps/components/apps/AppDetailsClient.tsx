@@ -114,8 +114,8 @@ export default function AppDetailsClient({ app }: AppDetailsClientProps) {
                                     transition={{ delay: 0.3, duration: 0.5 }}
                                     className="relative mt-6 max-w-3xl group"
                                 >
-                                    {/* Animated glow background */}
-                                    <div className={`absolute -inset-0.5 bg-gradient-to-r ${gradientColor} rounded-2xl blur opacity-20 group-hover:opacity-40 transition-opacity duration-500`} />
+                                    {/* Animated glow background - subtle default, stronger on hover */}
+                                    <div className={`absolute -inset-0.5 bg-gradient-to-r ${gradientColor} rounded-2xl blur opacity-10 group-hover:opacity-30 transition-opacity duration-500`} />
 
                                     <div className="relative p-5 rounded-xl bg-slate-900/90 border border-slate-700/50 overflow-hidden">
                                         {/* Gradient accent line on left */}
@@ -280,8 +280,8 @@ export default function AppDetailsClient({ app }: AppDetailsClientProps) {
                                 <div className="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent pointer-events-none z-10" />
                             </div>
 
-                            {/* Decorative Elements behind phone */}
-                            <div className="absolute -inset-10 bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 rounded-full blur-3xl -z-10 animate-pulse" />
+                            {/* Decorative Elements behind phone - subtle glow */}
+                            <div className="absolute -inset-10 bg-gradient-to-tr from-indigo-500/10 to-purple-500/10 rounded-full blur-3xl -z-10 animate-pulse group-hover:from-indigo-500/20 group-hover:to-purple-500/20 transition-all duration-500" />
                         </motion.div>
                     </div>
                 </div>

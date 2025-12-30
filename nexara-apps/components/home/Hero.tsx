@@ -37,9 +37,14 @@ export default function Hero() {
                         Next Generation Mobile Experiences
                     </motion.div>
 
-                    <motion.h1 variants={fadeInUp} className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[1.1]">
-                        Building <br className="hidden md:block" />
-                        <span className="bg-gradient-to-r from-indigo-400 via-primary to-purple-400 bg-clip-text text-transparent drop-shadow-2xl">Digital Solutions</span>
+                    <motion.h1
+                        variants={fadeInUp}
+                        className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[1.1] text-shadow-hero"
+                    >
+                        <span className="bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent">Building</span> <br className="hidden md:block" />
+                        <span className="bg-gradient-to-r from-indigo-400 via-primary to-purple-400 bg-clip-text text-transparent animate-gradient-x text-shadow-glow bg-size-200">
+                            Digital Solutions
+                        </span>
                     </motion.h1>
 
                     <motion.p variants={fadeInUp} className="text-base sm:text-lg md:text-2xl text-muted-foreground max-w-2xl mx-auto font-light leading-relaxed px-4 sm:px-0">
