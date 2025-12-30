@@ -48,9 +48,7 @@ export default function Footer() {
                     {/* Brand Column */}
                     <div className="space-y-6">
                         <Link href="/" className="inline-flex items-center gap-3 group">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:shadow-indigo-500/40 transition-shadow duration-300">
-                                <span className="text-white font-bold text-lg">N</span>
-                            </div>
+                            <img src="/logo.png" alt="NexaraTechs" className="w-20 h-20 object-contain hover:scale-105 transition-transform duration-300 drop-shadow-lg" />
                             <span className="text-xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
                                 NexaraTechs
                             </span>

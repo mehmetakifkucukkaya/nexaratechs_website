@@ -1,21 +1,20 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { ToastProvider } from "@/components/admin/Toast";
 import { logoutAdmin } from "@/lib/auth";
-import { useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
 import {
-    LayoutDashboard,
     AppWindow,
-    Users,
+    LayoutDashboard,
+    Loader2,
     LogOut,
     Menu,
-    X,
-    Sparkles,
-    Loader2
+    Users,
+    X
 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { ToastProvider } from "@/components/admin/Toast";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const navItems = [
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -94,7 +93,7 @@ export default function AdminLayout({
                             <img
                                 src="/logo.png"
                                 alt="Nexara"
-                                className="h-10 w-10 rounded-xl object-cover"
+                                className="h-16 w-16 object-contain hover:scale-105 transition-transform"
                             />
                             <div>
                                 <span className="font-bold text-lg text-white">Nexara</span>
@@ -159,7 +158,7 @@ export default function AdminLayout({
                             <img
                                 src="/logo.png"
                                 alt="Nexara"
-                                className="h-10 w-10 rounded-xl object-cover"
+                                className="h-16 w-16 object-contain hover:scale-105 transition-transform"
                             />
                             <span className="font-bold text-lg text-white">Nexara</span>
                         </Link>

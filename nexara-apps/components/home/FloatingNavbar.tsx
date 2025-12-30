@@ -75,9 +75,7 @@ export default function FloatingNavbar() {
                 )}>
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2" aria-label="NexaraTechs - Go to homepage">
-                        <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-indigo-500/20" aria-hidden="true">
-                            N
-                        </div>
+                        <img src="/logo.png" alt="NexaraTechs" className="h-16 w-16 rounded-xl object-contain hover:scale-105 transition-transform duration-300 drop-shadow-md" />
                         <span className={cn(
                             "font-bold text-lg tracking-tight hidden sm:block bg-clip-text text-transparent bg-gradient-to-r",
                             scrolled ? "from-gray-900 to-gray-600 dark:from-white dark:to-white/90" : "from-foreground to-foreground/80"

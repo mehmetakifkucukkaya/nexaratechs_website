@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { loginAdmin } from "@/lib/auth";
-import { Sparkles, Mail, Lock, AlertCircle } from "lucide-react";
+import { AlertCircle, Lock, Mail } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
@@ -91,9 +91,7 @@ export default function LoginPage() {
                     {/* Logo */}
                     <div className="text-center mb-8">
                         <Link href="/" className="inline-flex items-center gap-3 mb-6">
-                            <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-purple-500/30">
-                                <Sparkles className="w-6 h-6 text-white" />
-                            </div>
+                            <img src="/logo.png" alt="NexaraTechs" className="h-24 w-24 object-contain hover:scale-105 transition-transform duration-300 drop-shadow-2xl" />
                         </Link>
                         <h1 className="text-2xl font-bold text-white mb-2">Welcome Back</h1>
                         <p className="text-gray-400 text-sm">Sign in to access admin panel</p>
@@ -127,8 +125,8 @@ export default function LoginPage() {
                                         onChange={(e) => setEmail(e.target.value)}
                                         onBlur={() => handleBlur('email')}
                                         className={`w-full pl-12 pr-4 py-3 bg-white/5 border rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 transition-all disabled:opacity-50 ${touched.email && fieldErrors.email
-                                                ? 'border-red-500/50 focus:ring-red-500/50'
-                                                : 'border-white/10 focus:ring-purple-500/50 focus:border-purple-500/50'
+                                            ? 'border-red-500/50 focus:ring-red-500/50'
+                                            : 'border-white/10 focus:ring-purple-500/50 focus:border-purple-500/50'
                                             }`}
                                         placeholder="admin@example.com"
                                     />
@@ -157,8 +155,8 @@ export default function LoginPage() {
                                         onChange={(e) => setPassword(e.target.value)}
                                         onBlur={() => handleBlur('password')}
                                         className={`w-full pl-12 pr-4 py-3 bg-white/5 border rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 transition-all disabled:opacity-50 ${touched.password && fieldErrors.password
-                                                ? 'border-red-500/50 focus:ring-red-500/50'
-                                                : 'border-white/10 focus:ring-purple-500/50 focus:border-purple-500/50'
+                                            ? 'border-red-500/50 focus:ring-red-500/50'
+                                            : 'border-white/10 focus:ring-purple-500/50 focus:border-purple-500/50'
                                             }`}
                                         placeholder="••••••••"
                                     />
