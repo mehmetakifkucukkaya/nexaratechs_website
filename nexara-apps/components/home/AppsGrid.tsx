@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/lib/LanguageContext";
 import { AppData } from "@/lib/db";
 import { motion } from "framer-motion";
 import { Rocket, Smartphone } from "lucide-react";
@@ -11,6 +12,8 @@ interface AppsGridProps {
 }
 
 export default function AppsGrid({ apps }: AppsGridProps) {
+    const { t } = useLanguage();
+
     return (
         <section id="apps" className="py-12 sm:py-16 md:py-24 container mx-auto px-4">
             <motion.div
@@ -19,8 +22,8 @@ export default function AppsGrid({ apps }: AppsGridProps) {
                 viewport={{ once: true }}
                 className="text-center mb-16"
             >
-                <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-4">Crafted with Passion</h2>
-                <p className="text-muted-foreground text-lg">Our latest releases pushing the boundaries.</p>
+                <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-4">{t("apps.title")}</h2>
+                <p className="text-muted-foreground text-lg">{t("apps.subtitle")}</p>
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 max-w-6xl mx-auto auto-rows-[minmax(200px,auto)] md:auto-rows-[minmax(280px,auto)]">
@@ -118,11 +121,12 @@ export default function AppsGrid({ apps }: AppsGridProps) {
                         <Rocket className="w-8 h-8 text-muted-foreground opacity-50" />
                     </div>
                     <div>
-                        <h3 className="text-xl font-bold text-muted-foreground">Next Big Thing</h3>
-                        <p className="text-xs text-muted-foreground/60 mt-1">Coming {new Date().getFullYear() + 1}</p>
+                        <h3 className="text-xl font-bold text-muted-foreground">{t("apps.nextBigThing")}</h3>
+                        <p className="text-xs text-muted-foreground/60 mt-1">{t("apps.coming")} {new Date().getFullYear() + 1}</p>
                     </div>
                 </motion.div>
             </div>
         </section>
     );
 }
+

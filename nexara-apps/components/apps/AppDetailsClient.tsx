@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/lib/LanguageContext";
 import { AppData } from "@/lib/data";
 import { getIcon } from "@/lib/icon-map";
 import { cn } from "@/lib/utils";
@@ -24,6 +25,7 @@ interface AppDetailsClientProps {
 }
 
 export default function AppDetailsClient({ app }: AppDetailsClientProps) {
+    const { t } = useLanguage();
     // Slider state and controls
     const [currentSlide, setCurrentSlide] = useState(0);
     const [isAutoPlaying, setIsAutoPlaying] = useState(true);
@@ -55,6 +57,26 @@ export default function AppDetailsClient({ app }: AppDetailsClientProps) {
     const gradientColor = "from-purple-600 to-pink-500";
     const bgGlow = "bg-purple-600";
 
+    // Translate category
+    const translateCategory = (category: string) => {
+        const key = `category.${category}`;
+        const translated = t(key);
+        return translated !== key ? translated : category;
+    };
+
+    // Format date with translation
+    const formatDate = (dateStr: string) => {
+        const months = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+        const lowerDate = dateStr.toLowerCase();
+        for (const month of months) {
+            if (lowerDate.includes(month)) {
+                const translatedMonth = t(`month.${month}`);
+                return dateStr.replace(new RegExp(month, 'i'), translatedMonth);
+            }
+        }
+        return dateStr;
+    };
+
     return (
         <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
             {/* Hero Section */}
@@ -70,7 +92,7 @@ export default function AppDetailsClient({ app }: AppDetailsClientProps) {
 
                 <div className="container mx-auto px-4 sm:px-6 lg:px-12 xl:px-16">
                     <Link href="/apps" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-12 transition-colors">
-                        <ArrowLeft className="w-4 h-4" /> Back to Apps
+                        <ArrowLeft className="w-4 h-4" /> {t("appDetails.backToApps")}
                     </Link>
 
                     <div className="flex flex-col lg:flex-row gap-16 items-start">
@@ -184,8 +206,8 @@ export default function AppDetailsClient({ app }: AppDetailsClientProps) {
                                 >
                                     <svg viewBox="0 0 24 24" className="w-8 h-8 fill-current" xmlns="http://www.w3.org/2000/svg"><path d="M3.609 1.814L13.792 12 3.61 22.186c-.185.185-.425.226-.593.136a.6.6 0 0 1-.362-.511V2.389c0-.214.116-.403.3-.511.084-.055.182-.08.274-.064h.38zm11.2 11.2l-1.02-1.019L3.896 21.88c.11.096.262.143.415.111.23-.048.428-.198.536-.407l10.057-10.05-1.096-1.095V13.014zm1.268-1.267l5.448-5.46a.801.801 0 0 0 .226-.583.83.83 0 0 0-.215-.595.776.776 0 0 0-.583-.226.83.83 0 0 0-.594.215L15.06 10.63l1.017 1.117v.001zm-1.066-1.067l4.52-4.52-13.88-8.23c-.097-.058-.21-.08-.324-.058L14.73 10.4l.28.28z" /></svg>
                                     <div className="text-left">
-                                        <div className="text-[10px] font-medium opacity-80 uppercase tracking-wide">Get it on</div>
-                                        <div className="text-lg font-bold leading-none">Google Play</div>
+                                        <div className="text-[10px] font-medium opacity-80 uppercase tracking-wide">{t("appDetails.getItOn")}</div>
+                                        <div className="text-lg font-bold leading-none">{t("appDetails.googlePlay")}</div>
                                     </div>
                                 </Link>
 
@@ -198,8 +220,8 @@ export default function AppDetailsClient({ app }: AppDetailsClientProps) {
                                             ))}
                                         </div>
                                         <div className="text-xs font-medium">
-                                            <span className="block text-white">Join 20+ Testers</span>
-                                            <span className="text-[10px] text-muted-foreground">Limited spots left</span>
+                                            <span className="block text-white">{t("appDetails.joinTesters")}</span>
+                                            <span className="text-[10px] text-muted-foreground">{t("appDetails.limitedSpots")}</span>
                                         </div>
                                     </div>
                                 )}
@@ -297,7 +319,7 @@ export default function AppDetailsClient({ app }: AppDetailsClientProps) {
                         <div>
                             <h2 className="text-xl sm:text-2xl font-bold mb-6 sm:mb-8 flex items-center gap-3">
                                 <span className={`w-2 h-6 rounded-full bg-gradient-to-b ${gradientColor}`} />
-                                Key Features
+                                {t("appDetails.keyFeatures")}
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {(app.features && app.features.length > 0) ? (
@@ -318,9 +340,9 @@ export default function AppDetailsClient({ app }: AppDetailsClientProps) {
                                         <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-4">
                                             <ShieldCheck className="w-8 h-8 text-muted-foreground" />
                                         </div>
-                                        <h3 className="text-xl font-medium text-foreground mb-2">Features Coming Soon</h3>
+                                        <h3 className="text-xl font-medium text-foreground mb-2">{t("appDetails.featuresComingSoon")}</h3>
                                         <p className="text-muted-foreground max-w-md mx-auto">
-                                            Detailed feature list for {app.name} is currently being updated. Check back soon for more information.
+                                            {t("appDetails.featuresComingDesc").replace("{appName}", app.name)}
                                         </p>
                                     </div>
                                 )}
@@ -333,29 +355,29 @@ export default function AppDetailsClient({ app }: AppDetailsClientProps) {
                         <div className="p-5 sm:p-8 rounded-2xl sm:rounded-[2rem] bg-card border border-white/5 shadow-2xl lg:sticky lg:top-24">
                             <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
                                 <ShieldCheck className="w-5 h-5 text-green-500" />
-                                App Information
+                                {t("appDetails.appInfo")}
                             </h3>
                             <ul className="space-y-4 text-sm">
                                 <li className="flex justify-between items-center pb-4 border-b border-border/40">
-                                    <span className="text-muted-foreground flex items-center gap-2"><User className="w-4 h-4" /> Developer</span>
+                                    <span className="text-muted-foreground flex items-center gap-2"><User className="w-4 h-4" />{t("appDetails.developer")}</span>
                                     <span className="font-medium text-right">{app.developer}</span>
                                 </li>
                                 <li className="flex justify-between items-center pb-4 border-b border-border/40">
-                                    <span className="text-muted-foreground">Category</span>
-                                    <span className="font-medium px-3 py-1 rounded-full bg-white/5 text-sm">{app.category}</span>
+                                    <span className="text-muted-foreground">{t("appDetails.category")}</span>
+                                    <span className="font-medium px-3 py-1 rounded-full bg-white/5 text-sm">{translateCategory(app.category)}</span>
                                 </li>
                                 <li className="flex justify-between items-center pb-4 border-b border-border/40">
-                                    <span className="text-muted-foreground">Version</span>
+                                    <span className="text-muted-foreground">{t("appDetails.version")}</span>
                                     <span className="font-medium">{app.version}</span>
                                 </li>
                                 <li className="flex justify-between items-center pb-4 border-b border-border/40">
-                                    <span className="text-muted-foreground">Updated</span>
-                                    <span className="font-medium">{app.releaseDate}</span>
+                                    <span className="text-muted-foreground">{t("appDetails.updated")}</span>
+                                    <span className="font-medium">{formatDate(app.releaseDate || "")}</span>
                                 </li>
                                 {app.privacyUrl && (
                                     <li className="pt-2">
                                         <Link href={app.privacyUrl} className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1">
-                                            Read Privacy Policy <ArrowLeft className="w-3 h-3 rotate-180" />
+                                            {t("appDetails.readPrivacy")} <ArrowLeft className="w-3 h-3 rotate-180" />
                                         </Link>
                                     </li>
                                 )}

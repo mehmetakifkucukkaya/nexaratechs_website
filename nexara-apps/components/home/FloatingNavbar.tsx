@@ -1,6 +1,8 @@
 "use client";
 
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ModeToggle } from "@/components/mode-toggle";
+import { useLanguage } from "@/lib/LanguageContext";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
@@ -20,6 +22,7 @@ function debounce<T extends (...args: Parameters<T>) => void>(
 }
 
 export default function FloatingNavbar() {
+    const { t } = useLanguage();
     const [scrolled, setScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -48,9 +51,9 @@ export default function FloatingNavbar() {
     }, []);
 
     const navItems = [
-        { name: "Home", href: "/" },
-        { name: "Apps", href: "/apps" },
-        { name: "Roadmap", href: "/#roadmap" },
+        { name: t("nav.home"), href: "/" },
+        { name: t("nav.apps"), href: "/apps" },
+        { name: t("nav.roadmap"), href: "/#roadmap" },
     ];
 
     return (
@@ -103,18 +106,20 @@ export default function FloatingNavbar() {
 
                     {/* Desktop CTA */}
                     {/* Desktop CTA */}
-                    <div className="hidden md:flex items-center gap-4">
+                    <div className="hidden md:flex items-center gap-3">
+                        <LanguageSwitcher />
                         <ModeToggle />
                         <Link
                             href="#contact"
                             className="px-5 py-2 rounded-full bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:scale-105"
                         >
-                            Join Beta
+                            {t("nav.joinBeta")}
                         </Link>
                     </div>
 
                     {/* Mobile Menu Button */}
                     <div className="flex items-center gap-2 md:hidden">
+                        <LanguageSwitcher />
                         <ModeToggle />
                         <button
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -122,7 +127,7 @@ export default function FloatingNavbar() {
                                 "p-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500",
                                 scrolled ? "text-gray-600 hover:bg-black/5 dark:text-white/80 dark:hover:bg-white/10" : "text-foreground/80 hover:bg-foreground/5"
                             )}
-                            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+                            aria-label={mobileMenuOpen ? t("nav.menuClose") : t("nav.menuOpen")}
                             aria-expanded={mobileMenuOpen}
                             aria-controls="mobile-menu"
                         >
@@ -177,7 +182,7 @@ export default function FloatingNavbar() {
                                             onClick={() => setMobileMenuOpen(false)}
                                             className="flex items-center justify-center w-full px-5 py-3 rounded-xl bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-500 transition-colors shadow-lg shadow-indigo-500/20"
                                         >
-                                            Join Beta
+                                            {t("nav.joinBeta")}
                                         </Link>
                                     </div>
                                 </div>

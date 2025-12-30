@@ -1,13 +1,14 @@
 "use client";
 
+import { useLanguage } from "@/lib/LanguageContext";
 import { motion } from "framer-motion";
 import Link from "next/link";
 // import { apps } from "@/lib/data"; // Removed static data
+import { AppData } from "@/lib/data";
 import { getApps } from "@/lib/firebase";
 import { getIcon } from "@/lib/icon-map";
-import { AppData } from "@/lib/data";
-import { useState, useEffect } from "react";
-import { ArrowRight, Sparkles, Download, ExternalLink, Loader2 } from "lucide-react";
+import { ArrowRight, Download, ExternalLink, Loader2, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const containerVariants = {
     hidden: { opacity: 0 },
@@ -59,6 +60,7 @@ const getCategoryColor = (category: string) => {
 };
 
 export default function AppsPage() {
+    const { t } = useLanguage();
     const [apps, setApps] = useState<AppData[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -113,16 +115,16 @@ export default function AppsPage() {
                         className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-xl text-sm font-medium text-primary mb-6"
                     >
                         <Sparkles className="w-4 h-4" />
-                        Our Applications
+                        {t("appsPage.badge")}
                     </motion.div>
 
                     <motion.h1
                         variants={itemVariants}
                         className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight leading-[1.1] mb-6"
                     >
-                        Discover Our{" "}
+                        {t("appsPage.heroTitle1")}{" "}
                         <span className="bg-gradient-to-r from-primary via-indigo-400 to-purple-400 bg-clip-text text-transparent">
-                            Premium Apps
+                            {t("appsPage.heroTitle2")}
                         </span>
                     </motion.h1>
 
@@ -130,8 +132,7 @@ export default function AppsPage() {
                         variants={itemVariants}
                         className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto font-light leading-relaxed"
                     >
-                        Beautifully crafted mobile applications designed to enhance your daily life.
-                        Each app is built with care, attention to detail, and a focus on user experience.
+                        {t("appsPage.heroSubtitle")}
                     </motion.p>
                 </motion.div>
             </section>
@@ -178,7 +179,7 @@ export default function AppsPage() {
                                                     {app.name}
                                                 </h3>
                                                 <p className="text-sm text-muted-foreground/80">
-                                                    by {app.developer}
+                                                    {t("appsPage.by")} {app.developer}
                                                 </p>
                                             </div>
 
@@ -217,10 +218,10 @@ export default function AppsPage() {
                                             {/* CTA */}
                                             <div className="flex items-center justify-between pt-4">
                                                 <span className="text-xs text-muted-foreground/60">
-                                                    Released {app.releaseDate}
+                                                    {t("appsPage.released")} {app.releaseDate}
                                                 </span>
                                                 <span className="inline-flex items-center gap-2 text-sm font-medium text-primary group-hover:gap-3 transition-all">
-                                                    Learn More
+                                                    {t("appsPage.learnMore")}
                                                     <ArrowRight className="w-4 h-4" />
                                                 </span>
                                             </div>
@@ -240,16 +241,16 @@ export default function AppsPage() {
                             <Sparkles className="w-10 h-10 text-muted-foreground/50" />
                         </div>
                         <div className="space-y-2">
-                            <h3 className="text-2xl font-bold text-muted-foreground">More Coming Soon</h3>
+                            <h3 className="text-2xl font-bold text-muted-foreground">{t("appsPage.comingSoon")}</h3>
                             <p className="text-sm text-muted-foreground/60 max-w-xs">
-                                We're working on exciting new apps. Stay tuned for updates!
+                                {t("appsPage.comingSoonDesc")}
                             </p>
                         </div>
                         <Link
                             href="/#contact"
                             className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/5 border border-white/10 text-sm font-medium hover:bg-white/10 transition-colors"
                         >
-                            Get Notified
+                            {t("appsPage.getNotified")}
                             <ExternalLink className="w-4 h-4" />
                         </Link>
                     </motion.div>
@@ -272,19 +273,19 @@ export default function AppsPage() {
                     <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
                         <div className="space-y-2">
                             <div className="text-3xl sm:text-4xl md:text-5xl font-black text-primary">{apps.length}</div>
-                            <div className="text-sm sm:text-base text-muted-foreground">Published Apps</div>
+                            <div className="text-sm sm:text-base text-muted-foreground">{t("appsPage.publishedApps")}</div>
                         </div>
                         <div className="space-y-2">
                             <div className="text-3xl sm:text-4xl md:text-5xl font-black text-primary">10K+</div>
-                            <div className="text-sm sm:text-base text-muted-foreground">Downloads</div>
+                            <div className="text-sm sm:text-base text-muted-foreground">{t("appsPage.downloads")}</div>
                         </div>
                         <div className="space-y-2">
                             <div className="text-3xl sm:text-4xl md:text-5xl font-black text-primary">4.8</div>
-                            <div className="text-sm sm:text-base text-muted-foreground">Avg. Rating</div>
+                            <div className="text-sm sm:text-base text-muted-foreground">{t("appsPage.avgRating")}</div>
                         </div>
                         <div className="space-y-2">
                             <div className="text-3xl sm:text-4xl md:text-5xl font-black text-primary">24/7</div>
-                            <div className="text-sm sm:text-base text-muted-foreground">Support</div>
+                            <div className="text-sm sm:text-base text-muted-foreground">{t("appsPage.support")}</div>
                         </div>
                     </div>
                 </motion.div>
@@ -300,17 +301,17 @@ export default function AppsPage() {
                     className="text-center max-w-2xl mx-auto space-y-6"
                 >
                     <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">
-                        Can't Find What You're Looking For?
+                        {t("appsPage.cantFind")}
                     </h2>
                     <p className="text-muted-foreground">
-                        We're always open to suggestions. Let us know what kind of app you'd like to see.
+                        {t("appsPage.suggestions")}
                     </p>
                     <Link
                         href="/#contact"
                         className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors shadow-lg shadow-primary/25"
                     >
                         <Download className="w-5 h-5" />
-                        Join Our Beta Program
+                        {t("appsPage.joinBeta")}
                     </Link>
                 </motion.div>
             </section>

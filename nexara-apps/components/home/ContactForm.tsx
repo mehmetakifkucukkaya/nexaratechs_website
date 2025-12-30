@@ -1,10 +1,12 @@
 "use client";
 
+import { useLanguage } from "@/lib/LanguageContext";
 import { createTesterApplication } from "@/lib/db";
 import { Shield } from "lucide-react";
 import { useState } from "react";
 
 export default function ContactForm() {
+    const { t } = useLanguage();
     const [email, setEmail] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
@@ -25,7 +27,7 @@ export default function ContactForm() {
             setEmail("");
         } catch (error) {
             console.error("Error joining beta:", error);
-            alert("Something went wrong. Please try again.");
+            alert(t("contact.errorMessage"));
         } finally {
             setIsSubmitting(false);
         }
@@ -40,9 +42,9 @@ export default function ContactForm() {
                 </div>
 
                 <div className="relative z-10 max-w-3xl mx-auto space-y-8">
-                    <h2 className="text-2xl sm:text-4xl md:text-6xl font-black text-white tracking-tight">Ready to Shape the Future?</h2>
+                    <h2 className="text-2xl sm:text-4xl md:text-6xl font-black text-white tracking-tight">{t("contact.title")}</h2>
                     <p className="text-base sm:text-xl text-indigo-100 font-light max-w-2xl mx-auto px-4 sm:px-0">
-                        Join our exclusive testing squad. Be the first to try, break, and improve our next generation of apps.
+                        {t("contact.subtitle")}
                     </p>
 
                     <div className="bg-white/10 backdrop-blur-xl p-2 rounded-2xl max-w-md mx-auto border border-white/20 shadow-2xl">
@@ -51,13 +53,13 @@ export default function ContactForm() {
                                 <div className="h-16 w-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4">
                                     <Shield className="w-8 h-8" />
                                 </div>
-                                <h3 className="text-xl font-bold text-white mb-2">Welcome Aboard!</h3>
-                                <p className="text-indigo-200">You&apos;ve been added to our priority waiting list. We&apos;ll be in touch soon.</p>
+                                <h3 className="text-xl font-bold text-white mb-2">{t("contact.welcomeTitle")}</h3>
+                                <p className="text-indigo-200">{t("contact.welcomeMessage")}</p>
                                 <button
                                     onClick={() => setIsSuccess(false)}
                                     className="mt-4 text-sm text-indigo-300 hover:text-white underline"
                                 >
-                                    Register another email
+                                    {t("contact.registerAnother")}
                                 </button>
                             </div>
                         ) : (
@@ -67,7 +69,7 @@ export default function ContactForm() {
                                     required
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="Enter your email address"
+                                    placeholder={t("contact.emailPlaceholder")}
                                     className="w-full bg-transparent border-none text-white placeholder:text-indigo-200 focus:ring-0 px-4 py-3 outline-none"
                                 />
                                 <button
@@ -75,17 +77,18 @@ export default function ContactForm() {
                                     disabled={isSubmitting}
                                     className="w-full bg-white text-indigo-900 rounded-xl font-bold py-3 hover:bg-indigo-50 transition-colors text-lg disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                 >
-                                    {isSubmitting ? 'Joining...' : 'Get Early Access'}
+                                    {isSubmitting ? t("contact.joining") : t("contact.getEarlyAccess")}
                                 </button>
                             </form>
                         )}
                     </div>
                     <div className="flex items-center justify-center gap-2 text-indigo-200 text-sm opacity-80 w-full">
                         <Shield className="w-4 h-4" />
-                        <span>No spam. Unsubscribe anytime.</span>
+                        <span>{t("contact.noSpam")}</span>
                     </div>
                 </div>
             </div>
         </section>
     );
 }
+

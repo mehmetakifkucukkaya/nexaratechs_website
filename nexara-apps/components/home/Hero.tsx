@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/lib/LanguageContext";
 import { motion } from "framer-motion";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
@@ -20,6 +21,8 @@ const staggerContainer = {
 };
 
 export default function Hero() {
+    const { t } = useLanguage();
+
     return (
         <section className="relative pt-28 pb-12 sm:pt-32 md:pt-40 lg:pt-52 lg:pb-32 container mx-auto px-4">
             <div className="flex flex-col items-center text-center max-w-5xl mx-auto z-10 relative">
@@ -34,29 +37,29 @@ export default function Hero() {
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
                         </span>
-                        Next Generation Mobile Experiences
+                        {t("hero.badge")}
                     </motion.div>
 
                     <motion.h1
                         variants={fadeInUp}
                         className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[1.1] text-shadow-hero"
                     >
-                        <span className="bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent">Building</span> <br className="hidden md:block" />
+                        <span className="bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent">{t("hero.title1")}</span> <br className="hidden md:block" />
                         <span className="bg-gradient-to-r from-indigo-400 via-primary to-purple-400 bg-clip-text text-transparent animate-gradient-x text-shadow-glow bg-size-200">
-                            Digital Solutions
+                            {t("hero.title2")}
                         </span>
                     </motion.h1>
 
                     <motion.p variants={fadeInUp} className="text-base sm:text-lg md:text-2xl text-muted-foreground max-w-2xl mx-auto font-light leading-relaxed px-4 sm:px-0">
-                        We craft polished mobile applications that define the future of productivity and lifestyle. Simple, beautiful, and built for you.
+                        {t("hero.subtitle")}
                     </motion.p>
 
                     <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
                         <Link href="#apps" className="h-12 sm:h-14 px-6 sm:px-8 rounded-full bg-primary text-primary-foreground font-semibold text-base sm:text-lg flex items-center gap-2 hover:scale-105 transition-transform shadow-[0_0_40px_-10px_rgba(124,58,237,0.5)]">
-                            Explore Apps <ChevronRight className="w-5 h-5" />
+                            {t("hero.exploreApps")} <ChevronRight className="w-5 h-5" />
                         </Link>
                         <Link href="#contact" className="h-12 sm:h-14 px-6 sm:px-8 rounded-full bg-secondary border border-border backdrop-blur-md text-foreground font-medium text-base sm:text-lg flex items-center gap-2 hover:bg-accent transition-colors">
-                            Join Beta
+                            {t("hero.joinBeta")}
                         </Link>
                     </motion.div>
                 </motion.div>
@@ -64,3 +67,4 @@ export default function Hero() {
         </section>
     );
 }
+
