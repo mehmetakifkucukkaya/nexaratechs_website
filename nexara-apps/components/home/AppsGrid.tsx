@@ -40,7 +40,7 @@ export default function AppsGrid({ apps }: AppsGridProps) {
                                 whileHover={{ scale: 1.02 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: index * 0.1 }}
-                                className={`relative h-full group rounded-2xl sm:rounded-[2.5rem] bg-card border border-white/5 p-5 sm:p-8 overflow-hidden shadow-xl flex flex-col justify-between cursor-pointer ${isFeatured ? 'min-h-[280px] md:min-h-[600px]' : 'min-h-[200px]'
+                                className={`relative h-full group rounded-2xl sm:rounded-[2.5rem] bg-card border border-border p-5 sm:p-8 overflow-hidden shadow-xl flex flex-col justify-between cursor-pointer ${isFeatured ? 'min-h-[280px] md:min-h-[600px]' : 'min-h-[200px]'
                                     }`}
                             >
                                 {/* Background Decor for Featured */}
@@ -112,9 +112,9 @@ export default function AppsGrid({ apps }: AppsGridProps) {
                     whileHover={{ scale: 1.02 }}
                     viewport={{ once: true }}
                     transition={{ delay: apps.length * 0.1 }}
-                    className="relative group rounded-2xl sm:rounded-[2.5rem] bg-white/5 border border-dashed border-white/10 p-5 sm:p-8 overflow-hidden flex flex-col items-center justify-center text-center gap-4 hover:bg-white/10 transition-colors min-h-[200px]"
+                    className="relative group rounded-2xl sm:rounded-[2.5rem] bg-secondary border border-dashed border-border p-5 sm:p-8 overflow-hidden flex flex-col items-center justify-center text-center gap-4 hover:bg-accent transition-colors min-h-[200px]"
                 >
-                    <div className="h-16 w-16 rounded-full bg-white/5 flex items-center justify-center">
+                    <div className="h-16 w-16 rounded-full bg-secondary flex items-center justify-center">
                         <Rocket className="w-8 h-8 text-muted-foreground opacity-50" />
                     </div>
                     <div>

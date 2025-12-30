@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { X, ExternalLink, Edit, Trash2, Image, Calendar, Link as LinkIcon, Loader2 } from "lucide-react";
 import { AppData } from "@/lib/db";
+import { Edit, ExternalLink, Trash2, X } from "lucide-react";
+import { useState } from "react";
 
 interface AppDetailModalProps {
     app: AppData | null;
@@ -38,9 +38,12 @@ export function AppDetailModal({ app, isOpen, onClose, onEdit, onDelete }: AppDe
                 {/* Header */}
                 <div className="sticky top-0 bg-[#0a0a1a] border-b border-white/5 p-6 flex items-center justify-between z-10">
                     <div className="flex items-center gap-4">
-                        <div className={`h-14 w-14 rounded-xl bg-gradient-to-br ${app.logoGradient} flex items-center justify-center`}>
-                            {/* Icon is displayed as text or we could map it if we import the map function. For admin, text is fine or just a generic icon */}
-                            <div className="text-white font-bold">{app.icon.substring(0, 2)}</div>
+                        <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center overflow-hidden relative border border-white/10">
+                            {app.logoUrl ? (
+                                <img src={app.logoUrl} alt={app.name} className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="text-white font-bold text-lg">{app.name.substring(0, 1)}</div>
+                            )}
                         </div>
                         <div>
                             <h2 className="text-xl font-semibold text-white">{app.name}</h2>

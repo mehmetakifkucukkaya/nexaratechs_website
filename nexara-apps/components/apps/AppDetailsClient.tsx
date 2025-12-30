@@ -58,7 +58,7 @@ export default function AppDetailsClient({ app }: AppDetailsClientProps) {
     return (
         <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
             {/* Hero Section */}
-            <section className="relative pt-24 pb-12 sm:pt-32 sm:pb-20 lg:pt-40 lg:pb-32 overflow-hidden">
+            <section className="relative pt-20 pb-12 sm:pt-28 sm:pb-20 lg:pt-36 lg:pb-32 overflow-hidden">
                 {/* Background Blurs */}
                 <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
                     <div className={cn(
@@ -94,15 +94,15 @@ export default function AppDetailsClient({ app }: AppDetailsClientProps) {
                                             />
                                         </div>
                                     ) : (
-                                        <div className="text-4xl font-bold text-white/50">{app.name.substring(0, 1)}</div>
+                                        <div className="text-3xl font-bold text-white/50">{app.name.substring(0, 1)}</div>
                                     )}
                                 </div>
 
                                 <div className="space-y-3 sm:space-y-4">
-                                    <h1 className="text-4xl sm:text-5xl md:text-7xl font-black tracking-tight leading-none">
+                                    <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tight leading-none">
                                         {app.name}
                                     </h1>
-                                    <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground font-light max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+                                    <p className="text-sm sm:text-base md:text-lg text-muted-foreground font-light max-w-2xl mx-auto lg:mx-0 leading-relaxed">
                                         {app.shortDescription}
                                     </p>
                                 </div>
@@ -123,7 +123,7 @@ export default function AppDetailsClient({ app }: AppDetailsClientProps) {
 
                                         {/* Content */}
                                         <div className="pl-4">
-                                            <div className="text-[15px] text-slate-300 leading-8 space-y-4">
+                                            <div className="text-[13px] sm:text-sm text-slate-300 leading-6 space-y-3">
                                                 {app.fullDescription.split(/(?:⭐|🌱)/).map((section, index) => {
                                                     // Determine the section type based on the separator or content
                                                     // This is a heuristic; consistent data formatting is ideal.
@@ -184,8 +184,8 @@ export default function AppDetailsClient({ app }: AppDetailsClientProps) {
                                 >
                                     <svg viewBox="0 0 24 24" className="w-8 h-8 fill-current" xmlns="http://www.w3.org/2000/svg"><path d="M3.609 1.814L13.792 12 3.61 22.186c-.185.185-.425.226-.593.136a.6.6 0 0 1-.362-.511V2.389c0-.214.116-.403.3-.511.084-.055.182-.08.274-.064h.38zm11.2 11.2l-1.02-1.019L3.896 21.88c.11.096.262.143.415.111.23-.048.428-.198.536-.407l10.057-10.05-1.096-1.095V13.014zm1.268-1.267l5.448-5.46a.801.801 0 0 0 .226-.583.83.83 0 0 0-.215-.595.776.776 0 0 0-.583-.226.83.83 0 0 0-.594.215L15.06 10.63l1.017 1.117v.001zm-1.066-1.067l4.52-4.52-13.88-8.23c-.097-.058-.21-.08-.324-.058L14.73 10.4l.28.28z" /></svg>
                                     <div className="text-left">
-                                        <div className="text-xs font-medium opacity-80 uppercase tracking-wide">Get it on</div>
-                                        <div className="text-xl font-bold leading-none">Google Play</div>
+                                        <div className="text-[10px] font-medium opacity-80 uppercase tracking-wide">Get it on</div>
+                                        <div className="text-lg font-bold leading-none">Google Play</div>
                                     </div>
                                 </Link>
 
@@ -197,9 +197,9 @@ export default function AppDetailsClient({ app }: AppDetailsClientProps) {
                                                 <div key={i} className="w-8 h-8 rounded-full bg-indigo-500 border-2 border-background flex items-center justify-center text-[10px] font-bold">U{i}</div>
                                             ))}
                                         </div>
-                                        <div className="text-sm font-medium">
+                                        <div className="text-xs font-medium">
                                             <span className="block text-white">Join 20+ Testers</span>
-                                            <span className="text-xs text-muted-foreground">Limited spots left</span>
+                                            <span className="text-[10px] text-muted-foreground">Limited spots left</span>
                                         </div>
                                     </div>
                                 )}
@@ -295,8 +295,8 @@ export default function AppDetailsClient({ app }: AppDetailsClientProps) {
                     <div className="lg:col-span-2 space-y-16">
 
                         <div>
-                            <h2 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 flex items-center gap-3">
-                                <span className={`w-2 h-8 rounded-full bg-gradient-to-b ${gradientColor}`} />
+                            <h2 className="text-xl sm:text-2xl font-bold mb-6 sm:mb-8 flex items-center gap-3">
+                                <span className={`w-2 h-6 rounded-full bg-gradient-to-b ${gradientColor}`} />
                                 Key Features
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -308,8 +308,8 @@ export default function AppDetailsClient({ app }: AppDetailsClientProps) {
                                                 <div className={`h-12 w-12 rounded-xl bg-gradient-to-br ${gradientColor} bg-opacity-10 flex items-center justify-center mb-4 text-white group-hover:scale-110 transition-transform shadow-inner`}>
                                                     <FeatureIcon className="w-6 h-6" />
                                                 </div>
-                                                <h3 className="text-lg sm:text-xl font-bold mb-2">{feature.title}</h3>
-                                                <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">{feature.description}</p>
+                                                <h3 className="text-base sm:text-lg font-bold mb-2">{feature.title}</h3>
+                                                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
                                             </div>
                                         )
                                     })
@@ -331,11 +331,11 @@ export default function AppDetailsClient({ app }: AppDetailsClientProps) {
                     {/* Sidebar Info */}
                     <div className="space-y-8">
                         <div className="p-5 sm:p-8 rounded-2xl sm:rounded-[2rem] bg-card border border-white/5 shadow-2xl lg:sticky lg:top-24">
-                            <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+                            <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
                                 <ShieldCheck className="w-5 h-5 text-green-500" />
                                 App Information
                             </h3>
-                            <ul className="space-y-6">
+                            <ul className="space-y-4 text-sm">
                                 <li className="flex justify-between items-center pb-4 border-b border-border/40">
                                     <span className="text-muted-foreground flex items-center gap-2"><User className="w-4 h-4" /> Developer</span>
                                     <span className="font-medium text-right">{app.developer}</span>

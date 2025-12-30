@@ -29,7 +29,7 @@ export default function Hero() {
                     variants={staggerContainer}
                     className="space-y-8"
                 >
-                    <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-xl text-sm font-medium text-indigo-400">
+                    <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary border border-border backdrop-blur-md shadow-xl text-sm font-medium text-indigo-500 dark:text-indigo-400">
                         <span className="relative flex h-2 w-2">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
@@ -50,7 +50,7 @@ export default function Hero() {
                         <Link href="#apps" className="h-12 sm:h-14 px-6 sm:px-8 rounded-full bg-primary text-primary-foreground font-semibold text-base sm:text-lg flex items-center gap-2 hover:scale-105 transition-transform shadow-[0_0_40px_-10px_rgba(124,58,237,0.5)]">
                             Explore Apps <ChevronRight className="w-5 h-5" />
                         </Link>
-                        <Link href="#contact" className="h-12 sm:h-14 px-6 sm:px-8 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-foreground font-medium text-base sm:text-lg flex items-center gap-2 hover:bg-white/10 transition-colors">
+                        <Link href="#contact" className="h-12 sm:h-14 px-6 sm:px-8 rounded-full bg-secondary border border-border backdrop-blur-md text-foreground font-medium text-base sm:text-lg flex items-center gap-2 hover:bg-accent transition-colors">
                             Join Beta
                         </Link>
                     </motion.div>

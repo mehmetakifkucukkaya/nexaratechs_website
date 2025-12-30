@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { X, User, Mail, Smartphone, Calendar, MessageSquare, AppWindow, Save, Loader2 } from "lucide-react";
-import { TesterData, AppData } from "@/lib/db";
-import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { AppData, TesterData } from "@/lib/db";
 import { db } from "@/lib/firebase";
+import { doc, serverTimestamp, updateDoc } from "firebase/firestore";
+import { AppWindow, Calendar, Loader2, Mail, MessageSquare, Save, Smartphone, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useToast } from "./Toast";
 
 interface TesterDetailModalProps {
@@ -159,7 +159,7 @@ export function TesterDetailModal({ tester, apps, isOpen, onClose, onUpdate }: T
                             <option value="" className="bg-[#0a0a1a]">Not assigned</option>
                             {apps.map((app) => (
                                 <option key={app.id} value={app.id} className="bg-[#0a0a1a]">
-                                    {app.title}
+                                    {app.name}
                                 </option>
                             ))}
                         </select>

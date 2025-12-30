@@ -33,7 +33,7 @@ export default function Footer() {
     };
 
     return (
-        <footer className="relative border-t border-white/10 bg-[#0A0A0A] overflow-hidden">
+        <footer className="relative border-t border-border bg-background overflow-hidden">
             {/* Background Gradients */}
             <div className="absolute top-0 left-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px] -translate-y-1/2 pointer-events-none" />
             <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-[100px] translate-y-1/2 pointer-events-none" />
@@ -49,7 +49,7 @@ export default function Footer() {
                             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:shadow-indigo-500/40 transition-shadow duration-300">
                                 <span className="text-white font-bold text-lg">N</span>
                             </div>
-                            <span className="text-xl font-bold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">
+                            <span className="text-xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
                                 NexaraTechs
                             </span>
                         </Link>
@@ -68,7 +68,7 @@ export default function Footer() {
                                     key={index}
                                     href={social.href}
                                     aria-label={social.label}
-                                    className="w-9 h-9 rounded-lg bg-white/5 border border-white/5 flex items-center justify-center text-muted-foreground hover:text-white hover:bg-white/10 hover:border-white/20 hover:scale-105 transition-all duration-300"
+                                    className="w-9 h-9 rounded-lg bg-secondary border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent hover:border-border hover:scale-105 transition-all duration-300"
                                 >
                                     <social.icon className="w-4 h-4" />
                                 </a>
@@ -78,7 +78,7 @@ export default function Footer() {
 
                     {/* Links Columns */}
                     <div className="lg:col-span-2 md:col-span-1">
-                        <h4 className="font-semibold text-white mb-6">Product</h4>
+                        <h4 className="font-semibold text-foreground mb-6">Product</h4>
                         <ul className="space-y-4">
                             <li>
                                 <Link href="/apps/walletta" className="text-muted-foreground hover:text-indigo-400 text-sm transition-colors flex items-center gap-2 group">
@@ -102,7 +102,7 @@ export default function Footer() {
                     </div>
 
                     <div className="lg:col-span-2 md:col-span-1">
-                        <h4 className="font-semibold text-white mb-6">Company</h4>
+                        <h4 className="font-semibold text-foreground mb-6">Company</h4>
                         <ul className="space-y-4">
                             <li>
                                 <Link href="/privacy" className="text-muted-foreground hover:text-indigo-400 text-sm transition-colors flex items-center gap-2 group">
@@ -126,8 +126,8 @@ export default function Footer() {
                     </div>
 
                     {/* Newsletter Column */}
-                    <div className="lg:col-span-4 md:col-span-2 bg-white/5 rounded-2xl p-6 border border-white/5 backdrop-blur-sm">
-                        <h4 className="font-semibold text-white mb-2">Subscribe to our newsletter</h4>
+                    <div className="lg:col-span-4 md:col-span-2 bg-secondary rounded-2xl p-6 border border-border backdrop-blur-sm">
+                        <h4 className="font-semibold text-foreground mb-2">Subscribe to our newsletter</h4>
                         <p className="text-muted-foreground text-sm mb-4">
                             Get the latest updates on our apps and technology.
                         </p>
@@ -144,7 +144,7 @@ export default function Footer() {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="Enter your email"
-                                    className="flex-1 bg-black/20 border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all placeholder:text-muted-foreground/50 disabled:opacity-50"
+                                    className="flex-1 bg-muted border border-border rounded-lg px-4 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-muted-foreground/50 disabled:opacity-50"
                                     disabled={isSubmitting}
                                 />
                                 <button
@@ -167,7 +167,7 @@ export default function Footer() {
                     </div>
                 </div>
 
-                <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
                     <p className="text-muted-foreground text-sm text-center md:text-left">
                         &copy; {currentYear} NexaraTechs. All rights reserved.
                     </p>

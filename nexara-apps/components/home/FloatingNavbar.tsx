@@ -1,5 +1,6 @@
 "use client";
 
+import { ModeToggle } from "@/components/mode-toggle";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
@@ -66,7 +67,7 @@ export default function FloatingNavbar() {
                 <div className={cn(
                     "flex items-center justify-between px-4 sm:px-6 py-3 rounded-full backdrop-blur-xl transition-all duration-300 border",
                     scrolled
-                        ? "bg-[#0A0A0A]/80 border-white/10 shadow-xl shadow-indigo-500/5 w-full sm:w-[90%] md:w-[70%]"
+                        ? "bg-white/80 dark:bg-[#0A0A0A]/80 border-black/5 dark:border-white/10 shadow-xl shadow-indigo-500/5 w-full sm:w-[90%] md:w-[70%]"
                         : "bg-transparent border-transparent w-full sm:container"
                 )}>
                     {/* Logo */}
@@ -76,7 +77,7 @@ export default function FloatingNavbar() {
                         </div>
                         <span className={cn(
                             "font-bold text-lg tracking-tight hidden sm:block bg-clip-text text-transparent bg-gradient-to-r",
-                            scrolled ? "from-white to-white/90" : "from-foreground to-foreground/80"
+                            scrolled ? "from-gray-900 to-gray-600 dark:from-white dark:to-white/90" : "from-foreground to-foreground/80"
                         )}>
                             NexaraTechs
                         </span>
@@ -91,7 +92,7 @@ export default function FloatingNavbar() {
                                 className={cn(
                                     "px-4 py-2 text-sm font-medium rounded-full transition-all",
                                     scrolled
-                                        ? "text-white/70 hover:text-white hover:bg-white/5"
+                                        ? "text-gray-600 hover:text-gray-900 hover:bg-black/5 dark:text-white/70 dark:hover:text-white dark:hover:bg-white/5"
                                         : "text-foreground/70 hover:text-foreground hover:bg-foreground/5"
                                 )}
                             >
@@ -101,7 +102,9 @@ export default function FloatingNavbar() {
                     </nav>
 
                     {/* Desktop CTA */}
+                    {/* Desktop CTA */}
                     <div className="hidden md:flex items-center gap-4">
+                        <ModeToggle />
                         <Link
                             href="#contact"
                             className="px-5 py-2 rounded-full bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:scale-105"
@@ -111,73 +114,78 @@ export default function FloatingNavbar() {
                     </div>
 
                     {/* Mobile Menu Button */}
-                    <button
-                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                        className={cn(
-                            "md:hidden p-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500",
-                            scrolled ? "text-white/80 hover:bg-white/10" : "text-foreground/80 hover:bg-foreground/5"
-                        )}
-                        aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-                        aria-expanded={mobileMenuOpen}
-                        aria-controls="mobile-menu"
-                    >
-                        {mobileMenuOpen ? (
-                            <X className="w-5 h-5" aria-hidden="true" />
-                        ) : (
-                            <Menu className="w-5 h-5" aria-hidden="true" />
-                        )}
-                    </button>
+                    <div className="flex items-center gap-2 md:hidden">
+                        <ModeToggle />
+                        <button
+                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                            className={cn(
+                                "p-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500",
+                                scrolled ? "text-gray-600 hover:bg-black/5 dark:text-white/80 dark:hover:bg-white/10" : "text-foreground/80 hover:bg-foreground/5"
+                            )}
+                            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+                            aria-expanded={mobileMenuOpen}
+                            aria-controls="mobile-menu"
+                        >
+                            {mobileMenuOpen ? (
+                                <X className="w-5 h-5" aria-hidden="true" />
+                            ) : (
+                                <Menu className="w-5 h-5" aria-hidden="true" />
+                            )}
+                        </button>
+                    </div>
                 </div>
-            </motion.header>
+            </motion.header >
 
             {/* Mobile Menu Overlay */}
             <AnimatePresence>
-                {mobileMenuOpen && (
-                    <>
-                        {/* Backdrop */}
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={() => setMobileMenuOpen(false)}
-                            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
-                        />
+                {
+                    mobileMenuOpen && (
+                        <>
+                            {/* Backdrop */}
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
+                            />
 
-                        {/* Mobile Menu */}
-                        <motion.div
-                            initial={{ opacity: 0, y: -20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
-                            transition={{ duration: 0.2 }}
-                            className="fixed top-20 left-4 right-4 z-50 md:hidden"
-                        >
-                            <div className="bg-[#0A0A0A]/95 backdrop-blur-3xl border border-white/10 rounded-2xl p-4 shadow-2xl">
-                                <nav className="flex flex-col gap-1">
-                                    {navItems.map((item) => (
+                            {/* Mobile Menu */}
+                            <motion.div
+                                initial={{ opacity: 0, y: -20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                transition={{ duration: 0.2 }}
+                                className="fixed top-20 left-4 right-4 z-50 md:hidden"
+                            >
+                                <div className="bg-[#0A0A0A]/95 backdrop-blur-3xl border border-white/10 rounded-2xl p-4 shadow-2xl">
+                                    <nav className="flex flex-col gap-1">
+                                        {navItems.map((item) => (
+                                            <Link
+                                                key={item.name}
+                                                href={item.href}
+                                                onClick={() => setMobileMenuOpen(false)}
+                                                className="px-4 py-3 text-base font-medium text-white/80 hover:text-white rounded-xl hover:bg-white/5 transition-colors"
+                                            >
+                                                {item.name}
+                                            </Link>
+                                        ))}
+                                    </nav>
+                                    <div className="mt-4 pt-4 border-t border-white/10">
                                         <Link
-                                            key={item.name}
-                                            href={item.href}
+                                            href="#contact"
                                             onClick={() => setMobileMenuOpen(false)}
-                                            className="px-4 py-3 text-base font-medium text-white/80 hover:text-white rounded-xl hover:bg-white/5 transition-colors"
+                                            className="flex items-center justify-center w-full px-5 py-3 rounded-xl bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-500 transition-colors shadow-lg shadow-indigo-500/20"
                                         >
-                                            {item.name}
+                                            Join Beta
                                         </Link>
-                                    ))}
-                                </nav>
-                                <div className="mt-4 pt-4 border-t border-white/10">
-                                    <Link
-                                        href="#contact"
-                                        onClick={() => setMobileMenuOpen(false)}
-                                        className="flex items-center justify-center w-full px-5 py-3 rounded-xl bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-500 transition-colors shadow-lg shadow-indigo-500/20"
-                                    >
-                                        Join Beta
-                                    </Link>
+                                    </div>
                                 </div>
-                            </div>
-                        </motion.div>
-                    </>
-                )}
-            </AnimatePresence>
+                            </motion.div>
+                        </>
+                    )
+                }
+            </AnimatePresence >
         </>
     );
 }
