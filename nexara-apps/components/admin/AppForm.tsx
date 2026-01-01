@@ -1,14 +1,14 @@
 "use client";
 
-import { useForm } from "react-hook-form";
 import { AppData } from "@/lib/db";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { addDoc, doc, updateDoc, collection } from "firebase/firestore";
 import { db, storage } from "@/lib/firebase";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { Upload, Save, AlertCircle, Loader2, Image } from "lucide-react";
+import { addDoc, collection, doc, updateDoc } from "firebase/firestore";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { AlertCircle, Loader2, Save, Upload } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 
 // File validation constants
 const ALLOWED_FILE_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
@@ -429,13 +429,27 @@ export default function AppForm({ initialData, isEdit = false }: AppFormProps) {
                         />
                     </div>
                     <div>
-                        <label className={labelClass}>Privacy URL</label>
+                        <label className={labelClass}>Privacy URL (Optional Override)</label>
                         <input
                             {...register("privacyUrl")}
                             className={inputClass}
                             placeholder="/privacy"
                         />
                     </div>
+                </div>
+
+                {/* Privacy Policy Content */}
+                <div className="pt-4 border-t border-white/5">
+                    <label className={labelClass}>Privacy Policy Content (Markdown Supported)</label>
+                    <textarea
+                        {...register("privacyPolicy")}
+                        className={inputClass}
+                        rows={10}
+                        placeholder="# Privacy Policy&#10;&#10;## Introduction&#10;..."
+                    />
+                    <p className="text-xs text-gray-500 mt-2">
+                        If provided, this content will be displayed at <code>/apps/[slug]/privacy</code>.
+                    </p>
                 </div>
 
             </div>

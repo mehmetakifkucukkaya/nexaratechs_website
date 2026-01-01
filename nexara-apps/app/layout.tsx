@@ -14,12 +14,10 @@ export const metadata: Metadata = {
     template: "%s | NexaraTechs",
   },
   description:
-    "We craft polished mobile applications that define the future of productivity and lifestyle. Discover Walletta, Dream AI, and more innovative apps.",
+    "We craft polished mobile applications that define the future of productivity and lifestyle. Discover our innovative apps.",
   keywords: [
     "mobile apps",
     "NexaraTechs",
-    "Walletta",
-    "Dream AI",
     "finance app",
     "dream interpretation",
     "Android apps",
@@ -110,12 +108,11 @@ export default function RootLayout({
               description:
                 "We craft polished mobile applications that define the future of productivity and lifestyle.",
               sameAs: [
-                "https://twitter.com/nexaratechs",
-                "https://github.com/nexaratechs",
+                "https://x.com/mehmetakifkkaya",
               ],
               contactPoint: {
                 "@type": "ContactPoint",
-                email: "contact@nexaratechs.com",
+                email: "nexaratechs@gmail.com",
                 contactType: "customer service",
               },
             }),

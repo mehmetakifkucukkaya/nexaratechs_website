@@ -374,13 +374,11 @@ export default function AppDetailsClient({ app }: AppDetailsClientProps) {
                                     <span className="text-muted-foreground">{t("appDetails.updated")}</span>
                                     <span className="font-medium">{formatDate(app.releaseDate || "")}</span>
                                 </li>
-                                {app.privacyUrl && (
-                                    <li className="pt-2">
-                                        <Link href={app.privacyUrl} className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1">
-                                            {t("appDetails.readPrivacy")} <ArrowLeft className="w-3 h-3 rotate-180" />
-                                        </Link>
-                                    </li>
-                                )}
+                                <li className="pt-2">
+                                    <Link href={app.privacyUrl || `/apps/${app.slug}/privacy`} className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1">
+                                        {t("appDetails.readPrivacy")} <ArrowLeft className="w-3 h-3 rotate-180" />
+                                    </Link>
+                                </li>
                             </ul>
                         </div>
                     </div>
