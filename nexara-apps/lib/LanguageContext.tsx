@@ -18,6 +18,7 @@ const translations: Record<Language, Record<string, string>> = {
         // Navbar
         "nav.home": "Home",
         "nav.apps": "Apps",
+        "nav.about": "About",
         "nav.joinBeta": "Join Beta",
         "nav.menuOpen": "Open menu",
         "nav.menuClose": "Close menu",
@@ -143,11 +144,37 @@ const translations: Record<Language, Record<string, string>> = {
         "month.october": "October",
         "month.november": "November",
         "month.december": "December",
+
+        // About Page
+        "about.title": "My Vision",
+        "about.subtitle": "Building the future of digital experiences.",
+        "about.missionTitle": "My Mission",
+        "about.missionDesc": "At NexaraTechs, I believe in the power of simplicity. My mission is to create natural, intuitive, and empowering applications. I don't just write code; I design experiences that improve your daily life.",
+        "about.valuesTitle": "Core Values",
+        "about.value1Title": "Innovation",
+        "about.value1Desc": "Constantly pushing boundaries and exploring new technologies.",
+        "about.value2Title": "Quality",
+        "about.value2Desc": "Obsessive attention to detail in every pixel and interaction.",
+        "about.value3Title": "Privacy",
+        "about.value3Desc": "Your data is yours. I design with privacy first.",
+        "about.teamTitle": "Developer",
+        "about.teamDesc": "A passionate designer and engineer based in Istanbul.",
+
+        // Privacy Page
+        "privacy.general.title": "Privacy Policy",
+        "privacy.general.subtitle": "General Website Policy",
+        "privacy.general.intro": "NexaraTechs is a portfolio website showcasing mobile applications. This website itself does not collect personal data from visitors, except for the optional newsletter subscription.",
+        "privacy.general.newsletterTitle": "Newsletter",
+        "privacy.general.newsletterDesc": "If you subscribe to our newsletter, we only store your email address to send you updates about our apps. We do not share your email with third parties.",
+        "privacy.general.appsTitle": "App Privacy Policies",
+        "privacy.general.appsDesc": "Each application handles data differently. Please refer to the specific \"Privacy Policy\" link within each app's page or settings for details on how they process your data.",
+        "privacy.general.contact": "Questions? Contact us at",
     },
     tr: {
         // Navbar
         "nav.home": "Ana Sayfa",
         "nav.apps": "Uygulamalar",
+        "nav.about": "Hakkımızda",
         "nav.joinBeta": "Beta'ya Katıl",
         "nav.menuOpen": "Menüyü aç",
         "nav.menuClose": "Menüyü kapat",
@@ -273,6 +300,31 @@ const translations: Record<Language, Record<string, string>> = {
         "month.october": "Ekim",
         "month.november": "Kasım",
         "month.december": "Aralık",
+
+        // About Page
+        "about.title": "Vizyonum",
+        "about.subtitle": "Dijital deneyimlerin geleceğini inşa ediyorum.",
+        "about.missionTitle": "Misyonum",
+        "about.missionDesc": "NexaraTechs olarak sadeliğin gücüne inanıyorum. Misyonum, doğal, sezgisel ve güçlendirici uygulamalar yaratmaktır. Sadece kod yazmıyorum; günlük yaşamınızı iyileştiren deneyimler tasarlıyorum.",
+        "about.valuesTitle": "Değerlerim",
+        "about.value1Title": "İnovasyon",
+        "about.value1Desc": "Sınırları zorluyor ve sürekli yeni teknolojileri keşfediyorum.",
+        "about.value2Title": "Kalite",
+        "about.value2Desc": "Her pikselde ve etkileşimde detaylara takıntılı özen.",
+        "about.value3Title": "Gizlilik",
+        "about.value3Desc": "Verileriniz sizindir. Gizlilik odaklı tasarım yapıyorum.",
+        "about.teamTitle": "Geliştirici",
+        "about.teamDesc": "İstanbul merkezli tutkulu bir tasarımcı ve mühendis.",
+
+        // Privacy Page
+        "privacy.general.title": "Gizlilik Politikası",
+        "privacy.general.subtitle": "Genel Web Sitesi Politikası",
+        "privacy.general.intro": "NexaraTechs, mobil uygulamaları sergileyen bir portföy web sitesidir. Bu web sitesi, opsiyonel bülten aboneliği dışında ziyaretçilerden kişisel veri toplamaz.",
+        "privacy.general.newsletterTitle": "Bülten",
+        "privacy.general.newsletterDesc": "Bültenimize abone olursanız, e-posta adresinizi sadece uygulamalarımızla ilgili güncellemeleri göndermek için saklarız. E-postanızı üçüncü taraflarla paylaşmayız.",
+        "privacy.general.appsTitle": "Uygulama Gizlilik Politikaları",
+        "privacy.general.appsDesc": "Her uygulama  verileri farklı şekilde işler. Verilerinizi nasıl işlediklerine dair detaylar için lütfen her uygulamanın sayfasındaki veya ayarlarındaki \"Gizlilik Politikası\" linkine başvurun.",
+        "privacy.general.contact": "Sorularınız mı var? Bize ulaşın:",
     },
 };
 

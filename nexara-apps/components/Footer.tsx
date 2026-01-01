@@ -1,7 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/lib/LanguageContext";
-import { ArrowRight, Github, Linkedin, Mail, Twitter } from "lucide-react";
+import { ArrowRight, Mail } from "lucide-react";
 
 import { subscribeToNewsletter } from "@/lib/db";
 import Link from "next/link";
@@ -58,10 +58,23 @@ export default function Footer() {
                         </p>
                         <div className="flex items-center gap-3">
                             {[
-                                { icon: Twitter, href: "#", label: "Twitter" },
-                                { icon: Github, href: "#", label: "GitHub" },
-                                { icon: Linkedin, href: "#", label: "LinkedIn" },
-                                { icon: Mail, href: "mailto:contact@nexaratechs.com", label: "Email" },
+                                {
+                                    icon: (props: any) => (
+                                        <svg
+                                            {...props}
+                                            role="img"
+                                            viewBox="0 0 24 24"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="currentColor"
+                                        >
+                                            <title>X</title>
+                                            <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" />
+                                        </svg>
+                                    ),
+                                    href: "https://x.com/mehmetakifkkaya",
+                                    label: ""
+                                },
+                                { icon: Mail, href: "mailto:nexaratechs@gmail.com", label: "Email" },
                             ].map((social, index) => (
                                 <a
                                     key={index}
@@ -77,24 +90,11 @@ export default function Footer() {
 
                     {/* Links Column */}
                     <div className="md:justify-self-center">
-                        <h4 className="font-semibold text-foreground mb-6">{t("footer.company")}</h4>
-                        <ul className="space-y-4">
+                        <ul className="space-y-4 mt-6">
                             <li>
                                 <Link href="/privacy" className="text-muted-foreground hover:text-indigo-400 text-sm transition-colors flex items-center gap-2 group">
                                     <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity" />
                                     {t("footer.privacy")}
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/terms" className="text-muted-foreground hover:text-indigo-400 text-sm transition-colors flex items-center gap-2 group">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                    {t("footer.terms")}
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="#" className="text-muted-foreground hover:text-indigo-400 text-sm transition-colors flex items-center gap-2 group">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                    {t("footer.contact")}
                                 </Link>
                             </li>
                         </ul>

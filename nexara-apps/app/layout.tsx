@@ -108,12 +108,11 @@ export default function RootLayout({
               description:
                 "We craft polished mobile applications that define the future of productivity and lifestyle.",
               sameAs: [
-                "https://twitter.com/nexaratechs",
-                "https://github.com/nexaratechs",
+                "https://x.com/mehmetakifkkaya",
               ],
               contactPoint: {
                 "@type": "ContactPoint",
-                email: "contact@nexaratechs.com",
+                email: "nexaratechs@gmail.com",
                 contactType: "customer service",
               },
             }),
