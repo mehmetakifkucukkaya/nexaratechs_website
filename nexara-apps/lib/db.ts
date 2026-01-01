@@ -12,32 +12,10 @@ import {
     Timestamp,
     where
 } from "firebase/firestore";
+import { AppData } from "./data";
 import { db } from "./firebase";
 
-// Types
-export interface AppData {
-    id?: string;
-    slug: string;
-    name: string;
-    developer: string;
-    shortDescription: string;
-    fullDescription: string;
-    logoUrl: string; // Image URL
-    screenshots: string[]; // URLs
-    features: {
-        title: string;
-        description: string;
-        icon: string; // Lucide icon name for features is fine
-    }[];
-    status: "Beta" | "Live" | "Coming Soon";
-    version: string;
-    releaseDate: string; // Yayınlanma/Test Tarihi
-    category: string;
-    downloadUrl?: string;
-    privacyUrl?: string;
-    order?: number;
-    createdAt?: Timestamp;
-}
+export type { AppData };
 
 export interface TesterData {
     id?: string;

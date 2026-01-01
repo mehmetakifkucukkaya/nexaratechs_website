@@ -53,7 +53,6 @@ export default function FloatingNavbar() {
     const navItems = [
         { name: t("nav.home"), href: "/" },
         { name: t("nav.apps"), href: "/apps" },
-        { name: t("nav.roadmap"), href: "/#roadmap" },
     ];
 
     return (

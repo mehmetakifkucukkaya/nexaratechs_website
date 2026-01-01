@@ -18,7 +18,6 @@ const translations: Record<Language, Record<string, string>> = {
         // Navbar
         "nav.home": "Home",
         "nav.apps": "Apps",
-        "nav.roadmap": "Roadmap",
         "nav.joinBeta": "Join Beta",
         "nav.menuOpen": "Open menu",
         "nav.menuClose": "Close menu",
@@ -52,7 +51,6 @@ const translations: Record<Language, Record<string, string>> = {
         // Footer
         "footer.description": "We craft polished mobile applications that define the future of productivity and lifestyle. Our software is designed to enhance your daily digital experience.",
         "footer.product": "Product",
-        "footer.roadmap": "Roadmap",
         "footer.company": "Company",
         "footer.privacy": "Privacy Policy",
         "footer.terms": "Terms of Service",
@@ -81,6 +79,11 @@ const translations: Record<Language, Record<string, string>> = {
         "appDetails.readPrivacy": "Read Privacy Policy",
         "appDetails.featuresComingSoon": "Features Coming Soon",
         "appDetails.featuresComingDesc": "Detailed feature list for {appName} is currently being updated. Check back soon for more information.",
+        "appDetails.privacyPolicy": "Privacy Policy",
+        "appDetails.privacyDescription": "How we handle and protect your data",
+        "appDetails.privacyNotAvailable": "Privacy Policy Not Available",
+        "appDetails.privacyComingSoon": "Privacy policy for this app is coming soon.",
+        "appDetails.backToApp": "Back to App",
 
         // Apps Page
         "appsPage.title": "Our Apps",
@@ -145,7 +148,6 @@ const translations: Record<Language, Record<string, string>> = {
         // Navbar
         "nav.home": "Ana Sayfa",
         "nav.apps": "Uygulamalar",
-        "nav.roadmap": "Yol Haritası",
         "nav.joinBeta": "Beta'ya Katıl",
         "nav.menuOpen": "Menüyü aç",
         "nav.menuClose": "Menüyü kapat",
@@ -179,7 +181,6 @@ const translations: Record<Language, Record<string, string>> = {
         // Footer
         "footer.description": "Geleceğin mobil deneyimlerini bugünden tasarlıyoruz. Üretkenliğinizi artıran, hayatınızı kolaylaştıran uygulamalar geliştiriyoruz.",
         "footer.product": "Ürünler",
-        "footer.roadmap": "Yol Haritası",
         "footer.company": "Kurumsal",
         "footer.privacy": "Gizlilik Politikası",
         "footer.terms": "Kullanım Şartları",
@@ -208,6 +209,11 @@ const translations: Record<Language, Record<string, string>> = {
         "appDetails.readPrivacy": "Gizlilik Politikasını Görüntüle",
         "appDetails.featuresComingSoon": "Özellikler Yakında Eklenecek",
         "appDetails.featuresComingDesc": "{appName} için detaylı özellik listesi hazırlanıyor. Kısa süre içinde güncellenecektir.",
+        "appDetails.privacyPolicy": "Gizlilik Politikası",
+        "appDetails.privacyDescription": "Verilerinizi nasıl işlediğimiz ve koruduğumuz",
+        "appDetails.privacyNotAvailable": "Gizlilik Politikası Mevcut Değil",
+        "appDetails.privacyComingSoon": "Bu uygulama için gizlilik politikası yakında eklenecektir.",
+        "appDetails.backToApp": "Uygulamaya Dön",
 
         // Apps Page
         "appsPage.title": "Uygulamalarımız",
