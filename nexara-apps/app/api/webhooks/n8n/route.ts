@@ -1,5 +1,6 @@
 
 import { db } from "@/lib/firebase";
+import { timingSafeEqual } from "crypto";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -20,6 +21,16 @@ function generateSlug(title: string): string {
         .replace(/^-|-$/g, '');
 }
 
+// Constant-time string comparison to prevent timing attacks
+function safeCompare(a: string, b: string): boolean {
+    if (a.length !== b.length) {
+        // Still compare to avoid leaking length info through timing
+        timingSafeEqual(Buffer.from(a), Buffer.from(a));
+        return false;
+    }
+    return timingSafeEqual(Buffer.from(a), Buffer.from(b));
+}
+
 export async function POST(req: NextRequest) {
     // 1. Security Check
     const secret = req.headers.get("x-webhook-secret");
@@ -35,7 +46,7 @@ export async function POST(req: NextRequest) {
         );
     }
 
-    if (secret !== configuredSecret) {
+    if (!secret || !safeCompare(secret, configuredSecret)) {
         return NextResponse.json(
             { error: "Unauthorized" },
             { status: 401 }

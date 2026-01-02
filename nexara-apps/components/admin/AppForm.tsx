@@ -108,7 +108,7 @@ export default function AppForm({ initialData, isEdit = false }: AppFormProps) {
         if (file) {
             const error = validateFile(file);
             if (error) {
-                alert(error);
+                setSubmitError(error);
                 return;
             }
             setLogoFile(file);

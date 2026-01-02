@@ -8,10 +8,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ChevronLeft, ChevronRight, ShieldCheck, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-// Screenshot images for the phone mockup slider
-const screenshots = [
+// Fallback screenshot images for the phone mockup slider
+const fallbackScreenshots = [
     "/images/Apple iPhone 16 Pro Max Screenshot 1.png",
     "/images/Apple iPhone 16 Pro Max Screenshot 2.png",
     "/images/Apple iPhone 16 Pro Max Screenshot 3.png",
@@ -26,17 +26,25 @@ interface AppDetailsClientProps {
 
 export default function AppDetailsClient({ app }: AppDetailsClientProps) {
     const { t } = useLanguage();
+
+    // Use app-specific screenshots if available, otherwise fallback
+    const screenshots = useMemo(() => {
+        return (app.screenshots && app.screenshots.length > 0)
+            ? app.screenshots
+            : fallbackScreenshots;
+    }, [app.screenshots]);
+
     // Slider state and controls
     const [currentSlide, setCurrentSlide] = useState(0);
     const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
     const nextSlide = useCallback(() => {
         setCurrentSlide((prev) => (prev + 1) % screenshots.length);
-    }, []);
+    }, [screenshots.length]);
 
     const prevSlide = useCallback(() => {
         setCurrentSlide((prev) => (prev - 1 + screenshots.length) % screenshots.length);
-    }, []);
+    }, [screenshots.length]);
 
     // Auto-rotate every 4 seconds
     useEffect(() => {

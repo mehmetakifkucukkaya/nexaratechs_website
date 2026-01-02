@@ -10,19 +10,21 @@ export default function ContactForm() {
     const [email, setEmail] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const handleJoin = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!email) return;
 
         setIsSubmitting(true);
+        setError(null);
         try {
             await subscribeToBeta(email);
             setIsSuccess(true);
             setEmail("");
-        } catch (error) {
-            console.error("Error joining beta:", error);
-            alert(t("contact.errorMessage"));
+        } catch (err) {
+            console.error("Error joining beta:", err);
+            setError(t("contact.errorMessage"));
         } finally {
             setIsSubmitting(false);
         }
@@ -74,6 +76,11 @@ export default function ContactForm() {
                                 >
                                     {isSubmitting ? t("contact.joining") : t("contact.getEarlyAccess")}
                                 </button>
+                                {error && (
+                                    <div className="p-3 rounded-lg bg-red-500/20 border border-red-500/30 text-red-200 text-sm text-center">
+                                        {error}
+                                    </div>
+                                )}
                             </form>
                         )}
                     </div>
