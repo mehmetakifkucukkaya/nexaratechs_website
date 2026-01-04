@@ -4,7 +4,7 @@ import { AppData } from "@/lib/db";
 import { db, storage } from "@/lib/firebase";
 import { addDoc, collection, doc, updateDoc } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { AlertCircle, Loader2, Save, Upload } from "lucide-react";
+import { AlertCircle, FileText, Loader2, Save, Upload } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -101,6 +101,95 @@ export default function AppForm({ initialData, isEdit = false }: AppFormProps) {
         if (autoSlug) {
             setValue('slug', generateSlug(newName));
         }
+    };
+
+    // JSON dosyasından verileri içe aktar
+    const handleJsonImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (file.type !== 'application/json') {
+            setSubmitError('Sadece JSON dosyaları desteklenmektedir.');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const content = event.target?.result as string;
+                const jsonData = JSON.parse(content);
+
+                // JSON yapısını kontrol et
+                let appData;
+                if (Array.isArray(jsonData) && jsonData[0]?.finalJSON) {
+                    appData = jsonData[0].finalJSON;
+                } else if (jsonData.finalJSON) {
+                    appData = jsonData.finalJSON;
+                } else {
+                    appData = jsonData;
+                }
+
+                // Form alanlarını doldur
+                if (appData.appName) {
+                    setValue('name', appData.appName);
+                    if (autoSlug) {
+                        setValue('slug', generateSlug(appData.appName));
+                    }
+                }
+
+                if (appData.fullDescription) {
+                    setValue('fullDescription', appData.fullDescription);
+                    // Kısa açıklama için ilk 200 karakteri kullan
+                    setValue('shortDescription', appData.fullDescription.substring(0, 200) + '...');
+                }
+
+                if (appData.iconUrl) {
+                    // Play Store URL'lerindeki boyut parametresini yüksek kaliteli yap
+                    const highResIcon = appData.iconUrl.replace(/=w\d+-h\d+.*$/, '=w512-h512');
+                    setValue('logoUrl', highResIcon);
+                    setLogoPreview(highResIcon);
+                }
+
+                if (appData.downloadUrl) {
+                    setValue('downloadUrl', appData.downloadUrl);
+                }
+
+                if (appData.screenshots && Array.isArray(appData.screenshots)) {
+                    // Screenshot URL'lerini yüksek kaliteli versiyonlarla değiştir
+                    const highResScreenshots = appData.screenshots.map((url: string) =>
+                        url.replace(/=w\d+-h\d+.*$/, '=w1920-h1080')
+                    );
+                    setExistingScreenshots(highResScreenshots);
+                }
+
+                if (appData.features && Array.isArray(appData.features)) {
+                    // Features'ı form yapısına dönüştür
+                    const formattedFeatures = appData.features.map((feature: string, index: number) => {
+                        // Feature stringinden title ve description çıkar
+                        const match = feature.match(/^\d+\.\s*\*\*(.*?):\*\*\s*([\s\S]*)$/);
+                        if (match) {
+                            return {
+                                title: match[1].trim(),
+                                description: match[2].trim(),
+                                icon: 'Star'
+                            };
+                        }
+                        return {
+                            title: `Özellik ${index + 1}`,
+                            description: feature,
+                            icon: 'Star'
+                        };
+                    });
+                    setFeatures(formattedFeatures);
+                }
+
+                setSubmitError(null);
+            } catch (error) {
+                setSubmitError('JSON dosyası okunamadı. Dosya formatını kontrol edin.');
+            }
+        };
+        reader.readAsText(file);
+        e.target.value = '';
     };
 
     const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -214,6 +303,33 @@ export default function AppForm({ initialData, isEdit = false }: AppFormProps) {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+            {/* JSON Import Section */}
+            <div className="rounded-2xl bg-gradient-to-r from-purple-500/10 to-indigo-500/10 backdrop-blur-xl border border-purple-500/20 p-6">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h3 className="text-white font-medium flex items-center gap-2">
+                            <FileText className="w-5 h-5 text-purple-400" />
+                            JSON'dan İçe Aktar
+                        </h3>
+                        <p className="text-sm text-gray-400 mt-1">
+                            Uygulama verilerini JSON dosyasından otomatik olarak doldurun.
+                        </p>
+                    </div>
+                    <label className="cursor-pointer">
+                        <input
+                            type="file"
+                            accept=".json,application/json"
+                            onChange={handleJsonImport}
+                            className="hidden"
+                        />
+                        <span className="flex items-center gap-2 bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 px-4 py-2 rounded-xl transition-colors">
+                            <FileText className="w-4 h-4" />
+                            JSON Dosyası Seç
+                        </span>
+                    </label>
+                </div>
+            </div>
+
             <div className="rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/5 p-6 md:p-8 space-y-6">
 
                 {/* Logo Upload */}
