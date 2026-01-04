@@ -55,21 +55,23 @@ export default function AppsGrid({ apps }: AppsGridProps) {
                                 )}
 
                                 <div className="z-10 relative">
-                                    <div className={`h-14 w-14 sm:h-16 sm:w-16 rounded-2xl flex items-center justify-center shadow-lg mb-4 sm:mb-6 ${isFeatured
-                                        ? 'bg-gradient-to-br from-blue-600 to-cyan-500 transform group-hover:-rotate-6 transition-transform'
-                                        : 'bg-gradient-to-br from-purple-500 to-pink-500'
+                                    <div className={`h-14 w-14 sm:h-16 sm:w-16 rounded-2xl overflow-hidden flex items-center justify-center shadow-lg mb-4 sm:mb-6 ${isFeatured
+                                        ? 'transform group-hover:-rotate-6 transition-transform'
+                                        : ''
                                         }`}>
                                         {app.logoUrl ? (
                                             <Image
                                                 src={app.logoUrl}
                                                 alt={app.name}
-                                                width={40}
-                                                height={40}
-                                                className="w-8 h-8 sm:w-10 sm:h-10 object-contain drop-shadow-md"
+                                                width={64}
+                                                height={64}
+                                                className="w-full h-full object-cover"
                                                 unoptimized={app.logoUrl.startsWith('http')}
                                             />
                                         ) : (
-                                            <Smartphone className="text-white w-7 h-7 sm:w-8 sm:h-8" />
+                                            <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                                                <Smartphone className="text-white w-7 h-7 sm:w-8 sm:h-8" />
+                                            </div>
                                         )}
                                     </div>
 

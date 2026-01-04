@@ -375,10 +375,6 @@ export default function AppDetailsClient({ app }: AppDetailsClientProps) {
                                     <span className="font-medium px-3 py-1 rounded-full bg-white/5 text-sm">{translateCategory(app.category)}</span>
                                 </li>
                                 <li className="flex justify-between items-center pb-4 border-b border-border/40">
-                                    <span className="text-muted-foreground">{t("appDetails.version")}</span>
-                                    <span className="font-medium">{app.version}</span>
-                                </li>
-                                <li className="flex justify-between items-center pb-4 border-b border-border/40">
                                     <span className="text-muted-foreground">{t("appDetails.updated")}</span>
                                     <span className="font-medium">{formatDate(app.releaseDate || "")}</span>
                                 </li>

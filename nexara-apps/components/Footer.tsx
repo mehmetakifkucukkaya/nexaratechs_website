@@ -44,7 +44,7 @@ export default function Footer() {
             <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent" />
 
             <div className="container mx-auto px-4 pt-16 pb-8 relative z-10">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16 mb-16">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16 mb-16">
                     {/* Brand Column */}
                     <div className="space-y-6">
                         <Link href="/" className="inline-flex items-center gap-3 group">
@@ -88,18 +88,6 @@ export default function Footer() {
                         </div>
                     </div>
 
-                    {/* Links Column */}
-                    <div className="md:justify-self-center">
-                        <ul className="space-y-4 mt-6">
-                            <li>
-                                <Link href="/privacy" className="text-muted-foreground hover:text-indigo-400 text-sm transition-colors flex items-center gap-2 group">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                    {t("footer.privacy")}
-                                </Link>
-                            </li>
-                        </ul>
-                    </div>
-
                     {/* Newsletter Column */}
                     <div className="bg-secondary rounded-2xl p-6 border border-border backdrop-blur-sm">
                         <h4 className="font-semibold text-foreground mb-2">{t("footer.newsletterTitle")}</h4>
@@ -139,6 +127,14 @@ export default function Footer() {
                         {error && (
                             <p className="text-red-400 text-xs mt-2">{error}</p>
                         )}
+                    </div>
+
+                    {/* Privacy Policy Link - Below the card */}
+                    <div className="md:col-start-2 flex justify-start">
+                        <Link href="/privacy" className="text-muted-foreground hover:text-indigo-400 text-sm transition-colors flex items-center gap-2 group">
+                            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            {t("footer.privacy")}
+                        </Link>
                     </div>
                 </div>
 
