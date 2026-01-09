@@ -4,6 +4,7 @@ import { useLanguage } from "@/lib/LanguageContext";
 import { AppData } from "@/lib/data";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import DOMPurify from "isomorphic-dompurify";
 import { ArrowLeft, Shield } from "lucide-react";
 import Link from "next/link";
 import { ReactNode } from "react";
@@ -15,6 +16,16 @@ interface PrivacyPolicyViewerProps {
 
 export default function PrivacyPolicyViewer({ app }: PrivacyPolicyViewerProps) {
     const { t } = useLanguage();
+
+    // Sanitize markdown content to prevent XSS attacks
+    const sanitizedContent = DOMPurify.sanitize(app.privacyPolicy || '', {
+        USE_PROFILES: { html: true },
+        ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'a', 'ul', 'ol', 'li',
+            'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'code', 'pre'],
+        ALLOWED_ATTR: ['href', 'title', 'target', 'rel'],
+        // Prevent javascript: URLs
+        FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover'],
+    });
 
     if (!app.privacyPolicy) {
         return (
@@ -127,7 +138,7 @@ export default function PrivacyPolicyViewer({ app }: PrivacyPolicyViewerProps) {
                                     ),
                                 }}
                             >
-                                {app.privacyPolicy || ""}
+                                {sanitizedContent}
                             </ReactMarkdown>
                         </div>
 

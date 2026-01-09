@@ -2,37 +2,54 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Apps collection - public read, admin write
+    // Helper: Check if user is an admin
+    function isAdmin() {
+      return request.auth != null && 
+             exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // Apps collection - public read, admin-only write
     match /apps/{appId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if isAdmin();
     }
     
-    // Testers collection - public create, admin read
+    // Testers collection - public create, admin read/update/delete
     match /testers/{testerId} {
       allow create: if true;
-      allow read, update, delete: if request.auth != null;
+      allow read, update, delete: if isAdmin();
     }
     
-    // Admin collection - only authenticated
+    // Admin collection - authenticated can read (to check status), 
+    // authenticated can write own doc (first admin setup), admins can manage
     match /admins/{adminId} {
-      allow read, write: if request.auth != null;
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == adminId;
     }
 
-    // Counters - Public read/write (for generating IDs)
+    // Counters - Public read/write for beta signup counter
     match /counters/{counterId} {
-      allow read, create, update: if true;
+      allow read, write: if true;
     }
 
-    // Beta Emails - Public read/create (for uniqueness check)
+    // Beta Emails - Public create for uniqueness check, admin delete
     match /betaEmails/{email} {
       allow read, create: if true;
+      allow delete: if isAdmin();
     }
 
-    // Beta Users - Public create (using sequential ID), admin read
+    // Beta Users - Public create with rate limiting (client-side), admin manage
     match /betaUsers/{userId} {
       allow create: if true;
-      allow read, update, delete: if request.auth != null;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Subscribers - Public create (newsletter), admin read/delete
+    match /subscribers/{subId} {
+      allow create: if true;
+      allow read, delete: if isAdmin();
     }
   }
 }
+
+

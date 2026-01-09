@@ -26,16 +26,14 @@ jest.mock('@/lib/LanguageContext', () => ({
     }),
 }));
 
-// Mock the db module
-jest.mock('@/lib/db', () => ({
-    subscribeToBeta: jest.fn(),
-}));
-
-import { subscribeToBeta } from '@/lib/db';
+// Mock fetch for API calls
+const mockFetch = jest.fn();
+global.fetch = mockFetch;
 
 describe('ContactForm', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        mockFetch.mockReset();
     });
 
     describe('Rendering', () => {
@@ -70,8 +68,11 @@ describe('ContactForm', () => {
     });
 
     describe('Form Submission', () => {
-        it('should call subscribeToBeta on valid submission', async () => {
-            (subscribeToBeta as jest.Mock).mockResolvedValue({ success: true });
+        it('should call API on valid submission', async () => {
+            mockFetch.mockResolvedValueOnce({
+                ok: true,
+                json: () => Promise.resolve({ success: true })
+            });
 
             render(<ContactForm />);
             const emailInput = screen.getByPlaceholderText('Enter your email');
@@ -81,12 +82,18 @@ describe('ContactForm', () => {
             await userEvent.click(submitButton);
 
             await waitFor(() => {
-                expect(subscribeToBeta).toHaveBeenCalledWith('test@example.com');
+                expect(mockFetch).toHaveBeenCalledWith('/api/join-beta', expect.objectContaining({
+                    method: 'POST',
+                    body: JSON.stringify({ email: 'test@example.com' })
+                }));
             });
         });
 
         it('should show success state after successful submission', async () => {
-            (subscribeToBeta as jest.Mock).mockResolvedValue({ success: true });
+            mockFetch.mockResolvedValueOnce({
+                ok: true,
+                json: () => Promise.resolve({ success: true })
+            });
 
             render(<ContactForm />);
             const emailInput = screen.getByPlaceholderText('Enter your email');
@@ -101,7 +108,11 @@ describe('ContactForm', () => {
         });
 
         it('should show error message on failed submission', async () => {
-            (subscribeToBeta as jest.Mock).mockRejectedValue(new Error('Network error'));
+            mockFetch.mockResolvedValueOnce({
+                ok: false,
+                status: 500,
+                json: () => Promise.resolve({ error: 'Server error' })
+            });
 
             render(<ContactForm />);
             const emailInput = screen.getByPlaceholderText('Enter your email');
@@ -111,13 +122,13 @@ describe('ContactForm', () => {
             await userEvent.click(submitButton);
 
             await waitFor(() => {
-                expect(screen.getByText('An error occurred')).toBeInTheDocument();
+                expect(screen.getByText('Server error')).toBeInTheDocument();
             });
         });
 
         it('should show loading state during submission', async () => {
             // Make the promise not resolve immediately
-            (subscribeToBeta as jest.Mock).mockImplementation(() => new Promise(() => { }));
+            mockFetch.mockImplementation(() => new Promise(() => { }));
 
             render(<ContactForm />);
             const emailInput = screen.getByPlaceholderText('Enter your email');
@@ -130,7 +141,7 @@ describe('ContactForm', () => {
         });
 
         it('should disable button during submission', async () => {
-            (subscribeToBeta as jest.Mock).mockImplementation(() => new Promise(() => { }));
+            mockFetch.mockImplementation(() => new Promise(() => { }));
 
             render(<ContactForm />);
             const emailInput = screen.getByPlaceholderText('Enter your email');
@@ -144,7 +155,10 @@ describe('ContactForm', () => {
         });
 
         it('should clear email input after successful submission', async () => {
-            (subscribeToBeta as jest.Mock).mockResolvedValue({ success: true });
+            mockFetch.mockResolvedValueOnce({
+                ok: true,
+                json: () => Promise.resolve({ success: true })
+            });
 
             render(<ContactForm />);
             const emailInput = screen.getByPlaceholderText('Enter your email');
@@ -157,11 +171,52 @@ describe('ContactForm', () => {
                 expect(screen.getByText('Welcome!')).toBeInTheDocument();
             });
         });
+
+        it('should show duplicate email error', async () => {
+            mockFetch.mockResolvedValueOnce({
+                ok: false,
+                status: 409,
+                json: () => Promise.resolve({ error: 'Bu email adresi zaten kayıtlı' })
+            });
+
+            render(<ContactForm />);
+            const emailInput = screen.getByPlaceholderText('Enter your email');
+            const submitButton = screen.getByText('Get Early Access');
+
+            await userEvent.type(emailInput, 'test@example.com');
+            await userEvent.click(submitButton);
+
+            await waitFor(() => {
+                expect(screen.getByText('Bu email adresi zaten kayıtlı.')).toBeInTheDocument();
+            });
+        });
+
+        it('should show rate limit error', async () => {
+            mockFetch.mockResolvedValueOnce({
+                ok: false,
+                status: 429,
+                json: () => Promise.resolve({ retryAfter: 120 })
+            });
+
+            render(<ContactForm />);
+            const emailInput = screen.getByPlaceholderText('Enter your email');
+            const submitButton = screen.getByText('Get Early Access');
+
+            await userEvent.type(emailInput, 'test@example.com');
+            await userEvent.click(submitButton);
+
+            await waitFor(() => {
+                expect(screen.getByText(/Çok fazla istek/)).toBeInTheDocument();
+            });
+        });
     });
 
     describe('Success State', () => {
         it('should allow registering another email', async () => {
-            (subscribeToBeta as jest.Mock).mockResolvedValue({ success: true });
+            mockFetch.mockResolvedValueOnce({
+                ok: true,
+                json: () => Promise.resolve({ success: true })
+            });
 
             render(<ContactForm />);
             const emailInput = screen.getByPlaceholderText('Enter your email');
@@ -181,3 +236,4 @@ describe('ContactForm', () => {
         });
     });
 });
+

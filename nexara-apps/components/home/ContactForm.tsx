@@ -1,7 +1,6 @@
 "use client";
 
 import { useLanguage } from "@/lib/LanguageContext";
-import { subscribeToBeta } from "@/lib/db";
 import { Shield } from "lucide-react";
 import { useState } from "react";
 
@@ -18,8 +17,31 @@ export default function ContactForm() {
 
         setIsSubmitting(true);
         setError(null);
+
         try {
-            await subscribeToBeta(email);
+            // Use API endpoint with rate limiting
+            const response = await fetch('/api/join-beta', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                // Handle rate limiting
+                if (response.status === 429) {
+                    const retryAfter = data.retryAfter || 60;
+                    const minutes = Math.ceil(retryAfter / 60);
+                    setError(`Çok fazla istek. Lütfen ${minutes} dakika sonra tekrar deneyin.`);
+                } else if (response.status === 409) {
+                    setError('Bu email adresi zaten kayıtlı.');
+                } else {
+                    setError(data.error || t("contact.errorMessage"));
+                }
+                return;
+            }
+
             setIsSuccess(true);
             setEmail("");
         } catch (err) {

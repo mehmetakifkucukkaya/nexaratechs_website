@@ -1,7 +1,16 @@
-import { NextResponse } from 'next/server';
+import { getClientIp, rateLimit, rateLimitConfigs, rateLimitResponse } from '@/lib/rate-limit';
 import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
+    // Rate limiting: 5 attempts per minute to prevent brute-force
+    const ip = getClientIp(request);
+    const limitResult = rateLimit(`login:${ip}`, rateLimitConfigs.strict);
+
+    if (!limitResult.success) {
+        return rateLimitResponse(limitResult);
+    }
+
     try {
         const { idToken } = await request.json();
 
@@ -35,3 +44,4 @@ export async function POST(request: Request) {
         );
     }
 }
+

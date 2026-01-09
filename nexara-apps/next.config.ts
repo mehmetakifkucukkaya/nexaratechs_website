@@ -6,6 +6,10 @@ const securityHeaders = [
     value: 'on'
   },
   {
+    key: 'Strict-Transport-Security',
+    value: 'max-age=31536000; includeSubDomains; preload'
+  },
+  {
     key: 'X-Frame-Options',
     value: 'SAMEORIGIN'
   },
@@ -26,6 +30,14 @@ const securityHeaders = [
     value: 'camera=(), microphone=(), geolocation=(), browsing-topics=()'
   },
   {
+    key: 'Cross-Origin-Opener-Policy',
+    value: 'same-origin'
+  },
+  {
+    key: 'Cross-Origin-Resource-Policy',
+    value: 'same-origin'
+  },
+  {
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
@@ -38,7 +50,8 @@ const securityHeaders = [
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",
-      "frame-ancestors 'self'"
+      "frame-ancestors 'self'",
+      "upgrade-insecure-requests"
     ].join('; ')
   }
 ];

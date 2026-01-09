@@ -1,6 +1,6 @@
 
 import { db } from "@/lib/firebase";
-import { timingSafeEqual } from "crypto";
+import { createHmac, timingSafeEqual } from "crypto";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -21,40 +21,77 @@ function generateSlug(title: string): string {
         .replace(/^-|-$/g, '');
 }
 
-// Constant-time string comparison to prevent timing attacks
-function safeCompare(a: string, b: string): boolean {
-    if (a.length !== b.length) {
-        // Still compare to avoid leaking length info through timing
-        timingSafeEqual(Buffer.from(a), Buffer.from(a));
+// HMAC-SHA256 signature verification
+function verifyHmacSignature(body: string, signature: string, secret: string): boolean {
+    try {
+        const expectedSignature = createHmac('sha256', secret)
+            .update(body)
+            .digest('hex');
+
+        const sigBuffer = Buffer.from(signature);
+        const expectedBuffer = Buffer.from(expectedSignature);
+
+        if (sigBuffer.length !== expectedBuffer.length) {
+            // Perform timing-safe comparison anyway to prevent timing attacks
+            timingSafeEqual(sigBuffer, sigBuffer);
+            return false;
+        }
+
+        return timingSafeEqual(sigBuffer, expectedBuffer);
+    } catch {
         return false;
     }
-    return timingSafeEqual(Buffer.from(a), Buffer.from(b));
 }
 
 export async function POST(req: NextRequest) {
-    // 1. Security Check
-    const secret = req.headers.get("x-webhook-secret");
+    // 1. Security Check - HMAC Signature Verification
+    const signature = req.headers.get("x-webhook-signature");
+    // Also support legacy header for backward compatibility
+    const legacySecret = req.headers.get("x-webhook-secret");
     const configuredSecret = process.env.N8N_WEBHOOK_SECRET;
 
     if (!configuredSecret) {
-        // Checking for environment variable presence. 
-        // For local dev, maybe we allow a default or warn? 
-        // Let's enforce it for security.
         return NextResponse.json(
             { error: "Server misconfiguration: N8N_WEBHOOK_SECRET not set" },
             { status: 500 }
         );
     }
 
-    if (!secret || !safeCompare(secret, configuredSecret)) {
+    // Get raw body for signature verification
+    const bodyText = await req.text();
+
+    // Prefer HMAC signature, fall back to legacy secret header
+    if (signature) {
+        // HMAC signature verification (recommended)
+        if (!verifyHmacSignature(bodyText, signature, configuredSecret)) {
+            return NextResponse.json(
+                { error: "Invalid signature" },
+                { status: 401 }
+            );
+        }
+    } else if (legacySecret) {
+        // Legacy header-based auth (deprecated, for backward compatibility)
+        const secretBuffer = Buffer.from(legacySecret);
+        const expectedBuffer = Buffer.from(configuredSecret);
+
+        if (secretBuffer.length !== expectedBuffer.length ||
+            !timingSafeEqual(secretBuffer, expectedBuffer)) {
+            return NextResponse.json(
+                { error: "Unauthorized" },
+                { status: 401 }
+            );
+        }
+        console.warn('Warning: Using deprecated x-webhook-secret header. Please migrate to HMAC signature.');
+    } else {
         return NextResponse.json(
-            { error: "Unauthorized" },
+            { error: "Missing authentication: x-webhook-signature header required" },
             { status: 401 }
         );
     }
 
     try {
-        const body = await req.json();
+        // Parse body (already read as text for signature verification)
+        const body = JSON.parse(bodyText);
 
         // 2. Minimal Validation
         if (!body.name) {
